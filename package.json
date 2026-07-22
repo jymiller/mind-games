@@ -1,0 +1,16 @@
+{
+  "name": "mind-games",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Mind Games AI Hackathon (agent memory) — built on the XTrace Memory API",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "smoke": "node smoke.js"
+  },
+  "dependencies": {
+    "@xtraceai/memory": "^0.5.0"
+  }
+}
