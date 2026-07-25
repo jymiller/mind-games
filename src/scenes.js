@@ -6,6 +6,7 @@ import { getFlip } from "./deal.js";
 import { QUESTIONS } from "./ablation.js";
 import { getCard } from "./card.js";
 import { propose } from "./gate.js";
+import { runDrift } from "./drift.js";
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const x2 = (n) => Number(n).toFixed(2);
@@ -103,7 +104,72 @@ export const SCENES = [
       </section>`;
     },
   },
-  { id: "drift",    n: 3, title: "The Drift",    labels: ["SYNTHETIC DATA", "LIVE"],          built: false },
+  {
+    id: "drift",
+    n: 3,
+    title: "The Drift",
+    labels: ["SYNTHETIC DATA", "LIVE RECOMPUTE"],
+    built: true,
+    render: () => {
+      const d = runDrift();
+      const fieldList = (fields, other) =>
+        Object.keys(fields)
+          .map((k) => {
+            const gone = !(k in other);
+            return `<div class="fieldrow ${gone ? "changed" : ""}"><span class="fname">${esc(k)}</span>
+              <span class="fval">${esc(String(fields[k]))}</span></div>`;
+          })
+          .join("");
+      return `
+      <section class="card">
+        <div class="eyebrow">Scene 3 &middot; The Drift &mdash; ${esc(d.q2.label)} vs ${esc(d.q3.label)}</div>
+        <h1 class="flip-h">The borrower renamed a line. Nothing else changed.</h1>
+        <p class="plain"><b>In plain English:</b> every quarter the borrower sends a file of numbers.
+        This quarter they quietly renamed the earnings line from <code>ebitda</code> to
+        <code>adjusted_ebitda</code>. A normal pipeline goes looking for the name it knows, doesn't
+        find it, quietly reuses last quarter's number and reports that everything is fine. This one
+        compares the <em>shape</em> of the file against what it remembers, spots the rename, and uses
+        the real number.</p>
+
+        <div class="twocol">
+          <div>
+            <div class="minihead">${esc(d.q2.label)} &middot; remembered shape</div>
+            <div class="fieldmap">${fieldList(d.q2.fields, d.q3.fields)}</div>
+          </div>
+          <div>
+            <div class="minihead">${esc(d.q3.label)} &middot; what just arrived</div>
+            <div class="fieldmap">${fieldList(d.q3.fields, d.q2.fields)}</div>
+          </div>
+        </div>
+        <p class="xcheck" style="margin-top:14px">Detected on the field names, never on the values &mdash;
+        a value-only comparison cannot tell &ldquo;renamed&rdquo; apart from &ldquo;missing&rdquo;, and
+        missing looks like nothing being wrong.</p>
+
+        <div class="flipgrid" style="margin-top:22px">
+          <div class="panel green">
+            <div class="pcap" style="font-style:normal;margin:0 0 8px">Value-only pipeline</div>
+            <div class="num">${x2(d.naive.ratio)}&times;</div>
+            <div class="verdict">${esc(d.naive.verdict)}</div>
+            <div class="calc">used &pound;${x2(d.naive.ebitda)}m &mdash; last quarter's number</div>
+            <div class="pcap">${esc(d.naive.saw)}</div>
+          </div>
+          <div class="arrow">vs</div>
+          <div class="panel red">
+            <div class="pcap" style="font-style:normal;margin:0 0 8px">Field-map pipeline</div>
+            <div class="num">${x2(d.smart.ratio)}&times;</div>
+            <div class="verdict">${esc(d.smart.verdict)}</div>
+            <div class="calc">used &pound;${x2(d.smart.ebitda)}m &mdash; from <code>${esc(d.smart.usedField)}</code></div>
+            <div class="pcap">cap for this Test Date is ${x2(d.cap)}&times;</div>
+          </div>
+        </div>
+
+        <div class="proposal">
+          <div class="minihead">Written back, so it is never worked out twice</div>
+          <p class="pbasis" style="margin:0">${esc(d.lesson)}</p>
+        </div>
+      </section>`;
+    },
+  },
   {
     id: "flip",
     n: 4,

@@ -122,6 +122,14 @@ color:var(--amber);font-size:13.5px;line-height:1.55}
 .dnote summary:hover{color:var(--ink)}
 .dtime{color:#66717f;font-variant-numeric:tabular-nums;margin-left:6px}
 @media (max-width:640px){.sbrow{grid-template-columns:1fr;gap:4px}}
+.fieldmap{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.fieldrow{display:flex;justify-content:space-between;gap:12px;padding:10px 13px;font-size:13px;
+border-bottom:1px solid var(--line);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.fieldrow:last-child{border-bottom:none}
+.fieldrow.changed{background:#2b1f08;color:var(--amber)}
+.fieldrow.changed .fname{color:var(--amber);font-weight:700}
+.fname{color:var(--ink)}
+.fval{color:var(--dim);font-variant-numeric:tabular-nums}
 .proposal{margin-top:24px;border:1px solid var(--line);border-radius:12px;padding:20px;background:#0f1318}
 .pact{font-size:19px;font-weight:600;margin:0 0 6px;color:var(--ink)}
 .pbasis{color:var(--dim);font-size:14px;margin:0 0 16px}

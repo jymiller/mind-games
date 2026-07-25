@@ -1,0 +1,27 @@
+{
+  "_comment": "FICTIONAL — created for demonstration. Two consecutive quarterly submissions from the same borrower. Between them the borrower renames the earnings line: `ebitda` becomes `adjusted_ebitda`. Everything else keeps its name. A value-only pipeline cannot see this; a pipeline that remembers last quarter's field map can.",
+  "covenant": {
+    "note": "Post Amendment & Waiver No. 1, Test Dates from 30 Sep 2026 to 31 Dec 2026 cap Total Net Leverage at 7.25:1.",
+    "max_total_net_leverage": 7.25
+  },
+  "q2": {
+    "test_date": "2026-06-30",
+    "label": "Q2 2026 submission",
+    "fields": {
+      "period_end": "2026-06-30",
+      "total_net_debt": 220.0,
+      "ebitda": 34.0,
+      "cash_interest": 16.5
+    }
+  },
+  "q3": {
+    "test_date": "2026-09-30",
+    "label": "Q3 2026 submission",
+    "fields": {
+      "period_end": "2026-09-30",
+      "total_net_debt": 224.0,
+      "adjusted_ebitda": 29.5,
+      "cash_interest": 17.1
+    }
+  }
+}
