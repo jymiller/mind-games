@@ -1,0 +1,37 @@
+# Render Blueprint — deploys the Deal Memory web service.
+# Dashboard → New → Blueprint → connect jymiller/mind-games → Render reads this file → Apply.
+#
+# No secret values live here. Every key is `sync: false`, which means "prompt me in the
+# dashboard" — Render stores the value, git never sees it.
+services:
+  - type: web
+    name: deal-memory
+    runtime: node
+    plan: free # upgrade to "starter" in the dashboard for the live demo (no cold starts)
+    region: oregon
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      # XTrace Memory — domain memory (covenants, supersession, revision chain).
+      - key: XTRACE_API_KEY
+        sync: false
+      - key: XTRACE_ORG_ID
+        sync: false
+      # Novita — inference for the ablation (scene 6) and free-text recall (scene 8).
+      - key: NOVITA_API_KEY
+        sync: false
+      - key: NOVITA_MODEL
+        sync: false
+      # Scope names — NOT secrets. They keep dev memory out of covenant recall.
+      - key: XTRACE_DOMAIN_APP_ID
+        value: deal-memory
+      - key: XTRACE_DEV_USER_ID
+        value: mg-build
+      - key: XTRACE_DEV_APP_ID
+        value: mind-games-build
+      - key: XTRACE_DEV_NAMESPACE
+        value: repo:mind-games
+      - key: NODE_VERSION
+        value: "22"

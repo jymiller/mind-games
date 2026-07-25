@@ -8,7 +8,17 @@
     "node": ">=18"
   },
   "scripts": {
-    "smoke": "node smoke.js"
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "smoke": "node smoke.js",
+    "exp0": "node experiments/exp0-latency.js",
+    "exp1": "node experiments/exp1-supersession.js",
+    "exp2": "node experiments/exp2-retraction.js",
+    "exp3": "node experiments/exp3-handoff.js",
+    "exp4": "node experiments/exp4-trigger.js",
+    "exp5": "node experiments/exp5-eval-toggle.js",
+    "exp6": "node experiments/exp6-quota.js",
+    "experiments": "for e in 0 1 2 3 4 5 6; do node experiments/exp$e-*.js; done"
   },
   "dependencies": {
     "@xtraceai/memory": "^0.5.0"
