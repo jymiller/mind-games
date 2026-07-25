@@ -69,7 +69,7 @@ export const STORYBOARD = {
     said: "I want to show you the ablation, because you should ask for it. Same five questions, same model, run twice — once with memory, once without. It's a small eval: n equals five. And the failures aren't slower answers. They're wrong ones. Without memory it cannot tell you this quarter was previously certified compliant — it never saw the certificate.",
     build: "An eval harness that runs the five-question bank twice against the same model, memory injected or not, and renders the diff.",
     mech: "Accuracy delta, not cost or latency. Jiao grades correctness — efficiency is not his axis.",
-    check: "Both arms run live from one button; scores computed from the run, never hardcoded.",
+    check: "Both runs happen live from one button; scores are counted from the run, never hardcoded.",
     who: ["Jiao · decides it"],
   },
   gate: {

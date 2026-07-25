@@ -25,10 +25,42 @@ export const SCENES = [
           seat about three. So the loan outlives the person &mdash; and the <em>reasons</em> leave
           with them.
         </p>
+        <div class="oneliner">
+          <p>A borrower certifies the quarter compliant. <b class="g">6.47&times;</b>, against a 6.50&times;
+          limit. Signed. Then the audit restates earnings. Debt never moves.</p>
+          <p>Same quarter, same covenant &mdash; <b class="r">7.59&times;</b>. A breach nobody filed.</p>
+          <p class="ol-tail">The system doesn't just update the number. It goes back and re-derives the
+          verdict that depended on it.</p>
+        </div>
+
+        <p class="plain"><b>If you don't work in finance:</b> a <em>covenant</em> is a promise written into
+        a loan &mdash; keep this ratio below this number, or you're in default. Every quarter the borrower
+        files a certificate saying whether they kept it. Here the borrower said yes. The auditors later
+        cut the profit figure that the ratio was calculated from, which quietly made the answer no.</p>
+
         <blockquote id="judge-quote" class="quote">
           <span class="quote-label">Judge's question, 10:05 AM</span>
           &ldquo;<span id="judge-sentence">&lt;their exact sentence &mdash; edit JUDGE_SENTENCE in src/scenes.js at 10:30&gt;</span>&rdquo;
         </blockquote>
+
+        <details class="dnote">
+          <summary>If you're reading this without me &mdash; the three questions everyone asks</summary>
+          <div class="sbgrid">
+            <div class="sbrow"><div class="sbk">How is this<br>different from RAG?</div><div class="sbv">
+              Retrieval only ever adds. This takes away. When a fact is revised, the conclusion built on it
+              is re-derived &mdash; not swapped, not appended. Scene 4 shows a compliant quarter becoming a
+              breach from the same code path.</div></div>
+            <div class="sbrow"><div class="sbk">Is it actually<br>working?</div><div class="sbv">
+              Four of the eight scenes are built and run live against the memory API. The other four say so
+              on screen rather than showing a mock. Two acceptance checks &mdash; 13 assertions and 8 &mdash;
+              pass with no API key at all: <code>npm run check:flip</code> and <code>npm run check:ablation</code>.</div></div>
+            <div class="sbrow"><div class="sbk">What doesn't<br>work?</div><div class="sbv">
+              Four of eight scenes aren't built. Supersession is carried by the order documents were
+              ingested, not detected automatically &mdash; there are no revision chains in this corpus, which
+              is why Scene 5 is unbuilt and says why. And one fact didn't survive extraction: asked about it,
+              the memory answer refuses to guess rather than inventing a number.</div></div>
+          </div>
+        </details>
       </section>`,
   },
   {
@@ -62,6 +94,10 @@ export const SCENES = [
         <h1 class="flip-h">What the file knows, three officers later.</h1>
         <p class="sub">Recalled live from the deal's memory. Every row carries the sentence it
         came from &mdash; nothing here is typed into the page.</p>
+        <p class="plain"><b>In plain English:</b> this is what the loan file still remembers after the
+        person who negotiated it has gone &mdash; the promise the borrower made, what they last reported,
+        who signed it off, and where each line came from. Note the last row says everything is fine.
+        That is the claim Scene 4 breaks.</p>
         <div class="cardrows">${rows}</div>
       </section>`;
     },
@@ -104,16 +140,23 @@ export const SCENES = [
           </div>
         </div>
 
+        <p class="plain"><b>In plain English:</b> the borrower promised to keep its debt under
+        ${x2(f.threshold)}&times; its yearly profit. It reported ${x2(f.certificate.ratio)}&times; &mdash; just
+        inside &mdash; and signed a certificate saying so. Its auditors then decided
+        &pound;${(f.removed ?? 0).toFixed(1)}m of that profit didn't count. The debt never changed. On the
+        corrected profit the same quarter is ${x2(f.restated.ratio)}&times; &mdash; well over the limit, and
+        nobody had filed it.</p>
+
         <p class="sub">
           Nothing was overwritten. <em>One</em> <code>assess()</code> ran twice &mdash; same function, same
-          period, same net debt of &pound;${x2(f.restated.netDebt)}m. Only the EBITDA changed, because the
+          period, same debt of &pound;${x2(f.restated.netDebt)}m. Only the profit figure changed, because the
           audit revised it after the certificate was signed. The conclusion is <em>re-derived</em>, and a
-          quarter that closed green is now a covenant breach.
+          quarter that closed green is now a breach.
         </p>
 
         <div class="twocol">
           <div>
-            <div class="minihead">Why EBITDA moved &mdash; &pound;${x2(f.certificate.ebitda)}m &rarr; &pound;${x2(f.restated.ebitda)}m</div>
+            <div class="minihead">Why the profit figure moved &mdash; &pound;${x2(f.certificate.ebitda)}m &rarr; &pound;${x2(f.restated.ebitda)}m</div>
             <table class="dtable">${drivers}
               <tr class="total"><td>Total removed</td><td class="numcell">&minus;&pound;${(f.removed ?? 0).toFixed(1)}m</td></tr>
               <tr><td>Total Net Debt</td><td class="numcell">${f.netDebtUnmoved ? "unchanged" : "changed"}</td></tr>
@@ -156,40 +199,47 @@ export const SCENES = [
       ).join("");
       return `
       <section class="card">
-        <div class="eyebrow">Scene 6 &middot; The Ablation &mdash; is the memory load-bearing?</div>
-        <h1 class="flip-h">Same questions. Same model. Memory on, then off.</h1>
+        <div class="eyebrow">Scene 6 &middot; The Ablation</div>
+        <h1 class="flip-h">Does the memory actually change the answer?</h1>
+        <p class="sub">Five questions about this deal, asked twice. Once with the deal's memory
+        in front of the model, once without it. Same model, same questions, same wording &mdash;
+        the memory is the only thing that changes.</p>
 
         <div class="board">
           <div class="armbox green">
-            <div class="armlabel">Memory ON</div>
+            <div class="armlabel">With memory</div>
             <div class="armnum idle" id="score-on">not run</div>
-            <div class="pcap">recalled context injected</div>
+            <div class="pcap">how many it got right</div>
           </div>
           <div class="armbox red">
-            <div class="armlabel">Memory OFF</div>
+            <div class="armlabel">Without memory</div>
             <div class="armnum idle" id="score-off">not run</div>
-            <div class="pcap">identical prompt, no context</div>
+            <div class="pcap">how many it got right</div>
           </div>
           <div class="runwrap">
-            <button class="runbtn" id="run-ablation">Run both arms live</button>
-            <div class="runstatus" id="run-status">10 model calls &middot; nothing has run yet</div>
+            <button class="runbtn" id="run-ablation">Run the test live</button>
+            <div class="runstatus" id="run-status">Nothing has run yet. Press once and wait about ten seconds.</div>
           </div>
         </div>
 
+        <p class="plain"><b>How to read it:</b> each row is one question. The left tick is the answer
+        <em>with</em> the memory, the right one is the same question <em>without</em> it. PASS means the
+        answer actually contained the right figures &mdash; the answer itself is printed underneath, so you
+        can check the marking yourself.</p>
+
         <table class="qtable">
-          <thead><tr><th></th><th>Question</th><th class="cell">ON</th><th class="cell">OFF</th></tr></thead>
+          <thead><tr><th></th><th>Question</th><th class="cell">With</th><th class="cell">Without</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
 
         <p class="sub" style="margin-top:24px">
-          This is an <em>accuracy</em> delta &mdash; not cost, not latency. Both arms use the same model,
-          the same prompts and <code>temperature: 0</code>. The only difference is whether the recalled
-          memory is in the context window.
+          This measures whether the answers are <em>right</em> &mdash; not whether they are fast or cheap.
+          Every score you see was counted from the run you just watched; nothing is saved from earlier.
         </p>
         <p class="xcheck">
-          Read it honestly: the deal is synthetic, so the OFF arm has no prior knowledge to fall back on.
-          That is the point being measured &mdash; whether the answers are coming from memory rather than
-          from the model. It is not a claim that the model is weak.
+          Said plainly: this is an invented company, so without the memory the model has nothing to go on.
+          That is exactly the thing being measured &mdash; whether the answers come from the memory or from
+          the model. It is not a claim that the model is weak.
         </p>
       </section>
 
