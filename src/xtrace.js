@@ -14,6 +14,10 @@ export function loadEnv() {
       if (m && !env[m[1]]) env[m[1]] = m[2].replace(/^["']|["']$/g, "");
     }
   } catch { /* no .env yet */ }
+  // Trim every value. A key pasted into a dashboard textarea picks up a newline, and
+  // `Bearer \nmmk_…` is rejected by fetch as an invalid header value — which reads as
+  // "memory unreachable" and silently drops the app to its frozen fallback.
+  for (const k of Object.keys(env)) if (typeof env[k] === "string") env[k] = env[k].trim();
   return env;
 }
 
