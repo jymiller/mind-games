@@ -10,6 +10,7 @@ import { createServer } from "node:http";
 import { SCENES, getScene, JUDGE_SENTENCE } from "./src/scenes.js";
 import { getFlip } from "./src/deal.js";
 import { runAblation } from "./src/ablation.js";
+import { getStoryboard } from "./src/storyboard.js";
 
 const PORT = process.env.PORT || 3000;
 const HOST = "0.0.0.0";
@@ -47,6 +48,7 @@ text-transform:uppercase;margin-bottom:7px}
 .label{font-size:11px;letter-spacing:.09em;text-transform:uppercase;padding:5px 10px;
 border-radius:6px;border:1px solid var(--line);color:var(--dim);background:#0f1318}
 .label.live{color:var(--green);border-color:#1e4634}
+.label.planned{color:#66717f;border-style:dashed;text-transform:none;letter-spacing:.04em}
 .label.replay{color:var(--amber);border-color:#4a3a1e}
 .todo-note{color:var(--dim);margin-top:12px;font-size:14.5px}
 footer{color:var(--dim);font-size:12.5px;margin-top:34px;
@@ -81,6 +83,24 @@ align-items:start}
 padding:1px 0;text-align:center;font-size:11.5px}
 .ptext{color:var(--ink)}
 .pmeta{grid-column:2;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#66717f}
+.sbgrid{margin-top:24px;display:grid;gap:1px}
+.sbrow{display:grid;grid-template-columns:150px 1fr;gap:16px;padding:11px 0;border-bottom:1px solid var(--line)}
+.sbk{color:var(--dim);font-size:11px;letter-spacing:.09em;text-transform:uppercase;padding-top:2px}
+.sbv{font-size:14px;color:var(--ink);line-height:1.55}
+.who{display:inline-block;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--amber);
+border:1px solid #4a3a1e;border-radius:999px;padding:2px 9px;margin:0 6px 6px 0}
+.said{font-style:italic;color:var(--dim)}
+.blocked{margin-top:18px;border:1px dashed #4a3a1e;border-radius:8px;padding:12px 14px;
+color:var(--amber);font-size:13.5px;line-height:1.55}
+.blocked b{color:var(--ink)}
+.dnote{margin-top:26px;border-top:1px solid var(--line);padding-top:16px}
+.dnote summary{cursor:pointer;color:var(--dim);font-size:12.5px;letter-spacing:.04em;list-style:none}
+.dnote summary::-webkit-details-marker{display:none}
+.dnote summary::before{content:"▸ ";color:var(--accent)}
+.dnote[open] summary::before{content:"▾ "}
+.dnote summary:hover{color:var(--ink)}
+.dtime{color:#66717f;font-variant-numeric:tabular-nums;margin-left:6px}
+@media (max-width:640px){.sbrow{grid-template-columns:1fr;gap:4px}}
 .cardrows{margin-top:26px;display:grid;gap:2px}
 .crow{padding:15px 0;border-bottom:1px solid var(--line)}
 .clabel{color:var(--dim);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase}
@@ -134,15 +154,55 @@ function strip(activeId) {
   ).join("");
 }
 
+// Storyboard rows. Design intent only — never a source of figures for a live screen.
+function sbRows(sb) {
+  const row = (k, v) => (v ? `<div class="sbrow"><div class="sbk">${k}</div><div class="sbv">${esc(v)}</div></div>` : "");
+  return (
+    row("What it builds", sb.build) +
+    row("The mechanism", sb.mech) +
+    row("Acceptance check", sb.check) +
+    row("Shot", sb.shot) +
+    row("The beat", sb.beat) +
+    (sb.who?.length ? `<div class="sbrow"><div class="sbk">Aimed at</div><div class="sbv">${sb.who.map((w) => `<span class="who">${esc(w)}</span>`).join("")}</div></div>` : "")
+  );
+}
+
 function placeholder(scene) {
-  return `
+  const sb = getStoryboard(scene.id);
+  if (!sb) {
+    return `
     <section class="card">
       <div class="eyebrow">Scene ${scene.n} &middot; ${esc(scene.title)}</div>
       <h1>Not built yet.</h1>
       <p class="sub">This scene has no implementation on the server. It is a placeholder, and it
       says so &mdash; it does not render a mock as though it were real.</p>
-      <p class="todo-note">Build order is Scene 2 &rarr; 4 &rarr; 6 first. See <code>BUILD-LOOP.md</code>.</p>
     </section>`;
+  }
+  return `
+    <section class="card">
+      <div class="eyebrow">Scene ${scene.n} &middot; ${esc(scene.title)} &middot; ${esc(sb.time)}</div>
+      <h1 class="flip-h">Not built yet &mdash; here is what it would do.</h1>
+      <p class="sub">There is no implementation behind this page. Everything below is the
+      <em>storyboard</em>: the design intent and the acceptance check this scene must pass before it
+      may claim to work. It is a plan, not a result, and no figure on it came from memory.</p>
+      ${sb.blocked ? `<p class="blocked"><b>Blocked, and why:</b> ${esc(sb.blocked)}</p>` : ""}
+      <div class="sbgrid">${sbRows(sb)}</div>
+      <blockquote class="quote said"><span class="quote-label">What gets said, roughly</span>
+        &ldquo;${esc(sb.said)}&rdquo;</blockquote>
+    </section>`;
+}
+
+// Built scenes carry the same intent as a note UNDER the live prop, never in place of it.
+function directorNote(scene) {
+  const sb = getStoryboard(scene.id);
+  if (!sb) return "";
+  return `
+    <details class="dnote">
+      <summary>Director's note &mdash; the storyboard behind this scene <span class="dtime">${esc(sb.time)}</span></summary>
+      <div class="sbgrid">${sbRows(sb)}</div>
+      <blockquote class="quote said"><span class="quote-label">What gets said, roughly</span>
+        &ldquo;${esc(sb.said)}&rdquo;</blockquote>
+    </details>`;
 }
 
 async function page(scene) {
@@ -172,7 +232,14 @@ async function page(scene) {
   </div>
   <nav class="strip">${strip(scene.id)}</nav>
   ${body}
-  <div class="labels">${scene.labels.map((l) => `<span class="${labelClass(l)}">${esc(l)}</span>`).join("")}</div>
+  ${scene.built ? directorNote(scene) : ""}
+  <div class="labels">${
+    // An unbuilt scene's labels describe what it WILL carry. Rendering "LIVE" in green on a
+    // page that has no implementation is exactly the lie the labels exist to prevent.
+    scene.built
+      ? scene.labels.map((l) => `<span class="${labelClass(l)}">${esc(l)}</span>`).join("")
+      : scene.labels.map((l) => `<span class="label planned">planned: ${esc(l)}</span>`).join("")
+  }</div>
   <footer>All entities and figures are SYNTHETIC and invented. Enid is the use case, not an integration.</footer>
 </div></body></html>`;
 }
