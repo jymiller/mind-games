@@ -1,0 +1,435 @@
+<title>Deal Memory — strategy brief</title>
+<style>
+  :root {
+    --paper: #F3F2ED;
+    --panel: #FBFAF6;
+    --panel-2: #ECE9E0;
+    --ink: #17191F;
+    --ink-soft: #3B404A;
+    --muted: #6C7180;
+    --rule: #E1DDD2;
+    --accent: #A9741B;
+    --accent-ink: #8A5E12;
+    --accent-tint: #F1E6CF;
+    --good: #2C7A57;
+    --good-tint: #DCEBE2;
+    --bad: #AF382C;
+    --bad-tint: #F1DAD5;
+    --shadow: 0 1px 2px rgba(20,18,12,.05), 0 8px 24px rgba(20,18,12,.06);
+    --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0F1216;
+      --panel: #161A20;
+      --panel-2: #1E232B;
+      --ink: #ECE9E1;
+      --ink-soft: #C3C0B7;
+      --muted: #878C97;
+      --rule: #272C34;
+      --accent: #E0A63A;
+      --accent-ink: #EBB856;
+      --accent-tint: #2A2213;
+      --good: #4FB07E;
+      --good-tint: #16271E;
+      --bad: #E26B57;
+      --bad-tint: #2C1815;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #F3F2ED; --panel: #FBFAF6; --panel-2: #ECE9E0; --ink: #17191F; --ink-soft: #3B404A;
+    --muted: #6C7180; --rule: #E1DDD2; --accent: #A9741B; --accent-ink: #8A5E12; --accent-tint: #F1E6CF;
+    --good: #2C7A57; --good-tint: #DCEBE2; --bad: #AF382C; --bad-tint: #F1DAD5;
+    --shadow: 0 1px 2px rgba(20,18,12,.05), 0 8px 24px rgba(20,18,12,.06);
+  }
+  :root[data-theme="dark"] {
+    --paper: #0F1216; --panel: #161A20; --panel-2: #1E232B; --ink: #ECE9E1; --ink-soft: #C3C0B7;
+    --muted: #878C97; --rule: #272C34; --accent: #E0A63A; --accent-ink: #EBB856; --accent-tint: #2A2213;
+    --good: #4FB07E; --good-tint: #16271E; --bad: #E26B57; --bad-tint: #2C1815;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink-soft);
+    font-family: var(--sans); line-height: 1.6;
+    -webkit-font-smoothing: antialiased; font-size: 16.5px;
+  }
+  .wrap { max-width: 940px; margin: 0 auto; padding: clamp(24px, 5vw, 64px) clamp(18px, 4vw, 40px) 96px; }
+
+  .eyebrow {
+    font-family: var(--sans); font-size: 12px; font-weight: 650; letter-spacing: .13em;
+    text-transform: uppercase; color: var(--accent-ink); margin: 0 0 14px;
+  }
+  h1 {
+    font-family: var(--serif); font-weight: 640; color: var(--ink);
+    font-size: clamp(34px, 6vw, 56px); line-height: 1.02; letter-spacing: -.015em;
+    margin: 0 0 16px; text-wrap: balance;
+  }
+  .dek { font-size: clamp(17px, 2.4vw, 20px); color: var(--ink-soft); max-width: 60ch; margin: 0 0 20px; text-wrap: pretty; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px 20px; font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+  .meta b { color: var(--accent-ink); font-weight: 600; }
+
+  section { margin-top: clamp(44px, 7vw, 80px); }
+  h2 {
+    font-family: var(--serif); font-weight: 620; color: var(--ink);
+    font-size: clamp(24px, 4vw, 34px); line-height: 1.1; letter-spacing: -.01em;
+    margin: 0 0 6px; text-wrap: balance;
+  }
+  .lede { font-size: 18px; color: var(--ink); margin: 0 0 24px; max-width: 62ch; }
+  .lede.plain::before {
+    content: "In plain English"; display: block; font-family: var(--sans); font-size: 11px; font-weight: 650;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+  }
+  p { max-width: 66ch; }
+  .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .accent { color: var(--accent-ink); }
+
+  .rule { height: 1px; background: var(--rule); border: 0; margin: 0; }
+
+  /* tags */
+  .tag { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+    letter-spacing: .04em; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; white-space: nowrap; vertical-align: middle; }
+  .tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
+  .tag.real { background: var(--good-tint); color: var(--good); } .tag.real::before { background: var(--good); }
+  .tag.plan { background: var(--accent-tint); color: var(--accent-ink); } .tag.plan::before { background: var(--accent); }
+  .tag.analysis { background: var(--panel-2); color: var(--muted); } .tag.analysis::before { background: var(--muted); }
+
+  /* tldr */
+  .tldr { background: var(--panel); border: 1px solid var(--rule); border-radius: 14px; padding: clamp(20px,3vw,30px);
+    box-shadow: var(--shadow); margin-top: 34px; }
+  .tldr h3 { font-family: var(--sans); font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--accent-ink); margin: 0 0 16px; }
+  .tldr ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; counter-reset: t; }
+  .tldr li { display: grid; grid-template-columns: 30px 1fr; gap: 14px; align-items: start; counter-increment: t; }
+  .tldr li::before { content: counter(t); font-family: var(--serif); font-size: 20px; color: var(--accent);
+    line-height: 1.2; font-weight: 600; }
+  .tldr li b { color: var(--ink); font-weight: 650; }
+
+  /* convergence */
+  .converge { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; gap: 16px; }
+  @media (max-width: 640px) { .converge { grid-template-columns: 1fr; } .converge .arrow { transform: rotate(90deg); } }
+  .src { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 18px 18px 16px; box-shadow: var(--shadow); }
+  .src .k { font-family: var(--mono); font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .src .t { font-family: var(--serif); font-size: 18px; color: var(--ink); font-weight: 600; margin-bottom: 4px; }
+  .src small { color: var(--muted); font-size: 13.5px; }
+  .arrow { display: grid; place-items: center; color: var(--accent); font-size: 26px; }
+  .hero-box { grid-column: 1 / -1; margin-top: 4px; border: 1.5px solid var(--accent); background: var(--accent-tint);
+    border-radius: 12px; padding: 18px 20px; text-align: center; }
+  .hero-box .k { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); }
+  .hero-box .t { font-family: var(--serif); font-size: clamp(18px,3vw,23px); color: var(--ink); font-weight: 640; margin-top: 4px; text-wrap: balance; }
+
+  /* menu grid */
+  .menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+  .cluster { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 16px 16px 18px; box-shadow: var(--shadow); }
+  .cluster .hd { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+  .cluster .name { font-family: var(--serif); font-size: 16px; color: var(--ink); font-weight: 600; line-height: 1.15; }
+  .cluster .cnt { font-family: var(--mono); font-size: 12px; color: var(--muted); background: var(--panel-2); border-radius: 20px; padding: 2px 9px; white-space: nowrap; }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip { font-size: 13px; padding: 4px 10px; border-radius: 6px; background: var(--panel-2); color: var(--ink-soft); border: 1px solid transparent; }
+  .chip.star { background: var(--accent-tint); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  .chip.star::before { content: "★ "; font-size: 10px; }
+  .menu-note { font-size: 14px; color: var(--muted); margin-top: 16px; }
+
+  /* spine flow */
+  .flow { display: grid; gap: 10px; counter-reset: s; }
+  .step { display: grid; grid-template-columns: 38px 1fr; gap: 16px; align-items: start; background: var(--panel);
+    border: 1px solid var(--rule); border-radius: 11px; padding: 14px 16px; box-shadow: var(--shadow); counter-increment: s; position: relative; }
+  .step::before { content: counter(s); grid-row: 1 / 3; display: grid; place-items: center; width: 38px; height: 38px;
+    border-radius: 50%; background: var(--ink); color: var(--paper); font-family: var(--mono); font-weight: 700; font-size: 15px; }
+  .step.kill::before { background: var(--bad); }
+  .step .st { font-weight: 650; color: var(--ink); }
+  .step .sd { font-size: 14.5px; color: var(--ink-soft); margin-top: 2px; }
+  .step .sd code { font-family: var(--mono); font-size: 12.5px; background: var(--panel-2); padding: 1px 5px; border-radius: 4px; color: var(--accent-ink); }
+  .pitch { margin-top: 18px; border-left: 3px solid var(--accent); padding: 4px 0 4px 18px; }
+  .pitch .q { font-family: var(--serif); font-size: clamp(18px,3vw,22px); color: var(--ink); font-style: italic; line-height: 1.35; text-wrap: pretty; }
+
+  /* worked example panels */
+  .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .panels { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 14px; padding: 20px; box-shadow: var(--shadow); }
+  .panel > .phd { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .panel h4 { font-family: var(--serif); font-size: 18px; color: var(--ink); margin: 0; font-weight: 620; }
+  .panel .sub { font-size: 13.5px; color: var(--muted); margin: 0 0 16px; }
+
+  .cert { border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; font-family: var(--mono); font-size: 13px; }
+  .cert .row { display: flex; justify-content: space-between; gap: 10px; padding: 9px 13px; border-top: 1px solid var(--rule); }
+  .cert .row:first-child { border-top: 0; }
+  .cert .row .lbl { color: var(--muted); }
+  .cert .row .val { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .cert .cap { background: var(--panel-2); padding: 8px 13px; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+
+  .flip { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; margin-top: 14px; }
+  @media (max-width: 400px){ .flip { grid-template-columns: 1fr; } .flip .fa { transform: rotate(90deg); } }
+  .verdict { border-radius: 10px; padding: 12px; text-align: center; border: 1.5px solid; }
+  .verdict .lev { font-family: var(--mono); font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+  .verdict .st { font-family: var(--sans); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-top: 6px; }
+  .verdict .cx { font-size: 11px; color: var(--muted); margin-top: 4px; font-family: var(--mono); }
+  .verdict.ok { background: var(--good-tint); border-color: var(--good); } .verdict.ok .st { color: var(--good); }
+  .verdict.no { background: var(--bad-tint); border-color: var(--bad); } .verdict.no .st { color: var(--bad); }
+  .fa { color: var(--accent); font-size: 22px; text-align: center; }
+
+  .cmp { display: grid; gap: 10px; margin-top: 4px; }
+  .cmp .box { border-radius: 10px; padding: 12px 14px; border: 1px solid var(--rule); }
+  .cmp .box .h { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; margin-bottom: 8px; }
+  .cmp .exp .h { color: var(--good); } .cmp .act .h { color: var(--bad); }
+  .cmp .act { background: var(--bad-tint); border-color: var(--bad); }
+  .fact { font-family: var(--mono); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 3px 0; }
+  .fact .badge { font-size: 10px; padding: 1px 6px; border-radius: 4px; font-weight: 700; letter-spacing: .03em; }
+  .b-sup { background: var(--panel-2); color: var(--muted); text-decoration: line-through; }
+  .b-act { background: var(--good-tint); color: var(--good); }
+  .b-act-bad { background: var(--bad-tint); color: var(--bad); }
+  .arrow-i { color: var(--accent); }
+
+  /* callout */
+  .callout { border-radius: 14px; padding: clamp(18px,3vw,26px); border: 1px solid; box-shadow: var(--shadow); }
+  .callout.warn { background: var(--bad-tint); border-color: var(--bad); }
+  .callout.hedge { background: var(--good-tint); border-color: var(--good); margin-top: 16px; }
+  .callout .ct { font-family: var(--serif); font-size: 20px; font-weight: 620; color: var(--ink); margin: 0 0 8px; display: flex; align-items: center; gap: 10px; }
+  .callout p { margin: 0; color: var(--ink-soft); max-width: 68ch; }
+  .callout p + p { margin-top: 10px; }
+  .callout b { color: var(--ink); }
+
+  /* decision */
+  .fork { display: grid; gap: 14px; }
+  .qbar { background: var(--ink); color: var(--paper); border-radius: 12px; padding: 16px 20px; text-align: center; }
+  .qbar .k { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; opacity: .7; }
+  .qbar .q { font-family: var(--serif); font-size: clamp(18px,3vw,22px); font-weight: 600; margin-top: 4px; text-wrap: balance; }
+  .branches { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px){ .branches { grid-template-columns: 1fr; } }
+  .branch { border-radius: 12px; padding: 18px; border: 1.5px solid; }
+  .branch.yes { border-color: var(--good); background: var(--panel); }
+  .branch.no { border-color: var(--muted); background: var(--panel); }
+  .branch .bh { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; margin-bottom: 8px; }
+  .branch.yes .bh { color: var(--good); } .branch.no .bh { color: var(--muted); }
+  .branch .bt { font-family: var(--serif); font-size: 18px; color: var(--ink); font-weight: 620; margin-bottom: 6px; text-wrap: balance; }
+  .branch p { font-size: 14px; color: var(--ink-soft); margin: 0; }
+  .branch .opt { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--rule); font-size: 13.5px; }
+  .branch .opt b { color: var(--ink); }
+
+  /* ask */
+  .ask { margin-top: clamp(44px,7vw,72px); background: var(--panel); border: 1px solid var(--rule); border-radius: 14px;
+    padding: clamp(22px,3.5vw,32px); box-shadow: var(--shadow); }
+  .ask h2 { margin-bottom: 12px; }
+  .ask .rec { font-size: 17px; color: var(--ink); }
+  .ask .rec b { color: var(--accent-ink); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; font-size: 12.5px; color: var(--muted); align-items: center; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal { opacity: 0; transform: translateY(12px); animation: rise .6s cubic-bezier(.2,.7,.3,1) forwards; }
+    @keyframes rise { to { opacity: 1; transform: none; } }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="reveal">
+    <p class="eyebrow">Mind Games &middot; Strategy Brief</p>
+    <h1>Deal Memory: the play, and the crack under it</h1>
+    <p class="dek">Turning Enid's amnesia into the demo's hero &mdash; what a wide exploration found, and the live-test result that just cleared the path to build it.</p>
+    <div class="meta">
+      <span><b>Date</b> 2026&#8209;07&#8209;22</span>
+      <span><b>Build day</b> Sat 07&#8209;25 (~5 hrs on&#8209;site)</span>
+      <span><b>Explored</b> 68 ideas &rarr; 1 spine</span>
+      <span><b>Gate</b> <span style="color:var(--good);font-weight:600">&#10003; greenlit</span></span>
+    </div>
+  </header>
+
+  <div class="tldr reveal">
+    <h3>The 30-second version</h3>
+    <ol>
+      <li><span><b>Two separate analyses picked the same hero.</b> A restated financial number that reaches <em>backward in time</em> and flips a quarter you already signed off as "all-clear" into a breach. It's vivid, it's judge-proof, and no memory-less tool can do it.</span></li>
+      <li><span><b>The live test just cleared it.</b> The feature works &mdash; restate a number and the old value goes <em>superseded</em> with a walkable trail. The earlier failure was pure phrasing: say "the covenant <em>is</em> 4.0&times;," not "the amendment <em>increased it to</em> 4.0&times;."</span></li>
+      <li><span><b>So the path is open.</b> Build the tripwire&rarr;retroactive-breach spine. What's left is craft, not risk: seed two linked deals, pre-warm the data (extraction is ~18s), and stage the one-field flip.</span></li>
+    </ol>
+  </div>
+
+  <section class="reveal">
+    <h2>1 &middot; Two roads, one destination</h2>
+    <p class="lede plain">Your Thursday prep plan and a fresh, blind brainstorm &mdash; which never saw that plan &mdash; both arrived at the exact same centerpiece. When that happens, it's a strong sign you're in the right lane.</p>
+    <div class="converge">
+      <div class="src">
+        <div class="k">Road A &middot; the prep plan</div>
+        <div class="t">Deal Memory</div>
+        <small>Belief-revision demo, 4 beats. Hero = a restatement that supersedes with lineage (Beat&nbsp;3).</small>
+      </div>
+      <div class="arrow" aria-hidden="true">&rarr;</div>
+      <div class="src">
+        <div class="k">Road B &middot; the widen</div>
+        <div class="t">12 agents, blind</div>
+        <small>68 ideas across every memory type, scored by 3 judges. Top pick, unprompted: retroactive breach.</small>
+      </div>
+      <div class="hero-box">
+        <div class="k">Both landed on</div>
+        <div class="t">A restated number that flips a past "COMPLIANT" to RETROACTIVE BREACH</div>
+      </div>
+    </div>
+    <p style="margin-top:18px;font-size:14.5px;color:var(--muted)">The widen also <span class="accent">upgraded</span> it: instead of two separate beats, it fuses the <b>trigger hook</b> and the <b>restatement</b> into one causal chain (next section).</p>
+  </section>
+
+  <section class="reveal">
+    <h2>2 &middot; The whole menu we explored</h2>
+    <p class="lede plain">Here's the full space, so you can see what we're <em>not</em> building and why. Six families of memory, 68 ideas. Starred chips are the two that feed the recommended demo.</p>
+    <div class="menu">
+      <div class="cluster">
+        <div class="hd"><span class="name">Fact / semantic<br><small style="font-weight:400;color:var(--muted);font-family:var(--sans);font-size:12px">truth that supersedes</small></span><span class="cnt">14 ideas</span></div>
+        <div class="chips">
+          <span class="chip star">Retroactive breach on restatement</span>
+          <span class="chip">Amendment-aware "true" covenant</span>
+          <span class="chip">Add-back reality ledger</span>
+        </div>
+      </div>
+      <div class="cluster">
+        <div class="hd"><span class="name">Episode / episodic<br><small style="font-weight:400;color:var(--muted);font-family:var(--sans);font-size:12px">what happened when</small></span><span class="cnt">11 ideas</span></div>
+        <div class="chips">
+          <span class="chip">Amendment archaeology</span>
+          <span class="chip">Add-back creep detection</span>
+          <span class="chip">Breach forecast (green&rarr;red line)</span>
+        </div>
+      </div>
+      <div class="cluster">
+        <div class="hd"><span class="name">Artifact / versioned<br><small style="font-weight:400;color:var(--muted);font-family:var(--sans);font-size:12px">documents with lineage</small></span><span class="cnt">11 ideas</span></div>
+        <div class="chips">
+          <span class="chip">Retro-breach cascade (fact&rarr;cert)</span>
+          <span class="chip">Covenant-drift ledger</span>
+          <span class="chip">IC-memo thesis drift</span>
+        </div>
+      </div>
+      <div class="cluster">
+        <div class="hd"><span class="name">Lesson + procedure<br><small style="font-weight:400;color:var(--muted);font-family:var(--sans);font-size:12px">playbooks on a tripwire</small></span><span class="cnt">10 ideas</span></div>
+        <div class="chips">
+          <span class="chip star">Auditor-switch forensic playbook</span>
+          <span class="chip">Named-person red flag</span>
+          <span class="chip">Equity-cure exhaustion</span>
+        </div>
+      </div>
+      <div class="cluster">
+        <div class="hd"><span class="name">Groups / shared<br><small style="font-weight:400;color:var(--muted);font-family:var(--sans);font-size:12px">across deals &amp; analysts</small></span><span class="cnt">10 ideas</span></div>
+        <div class="chips">
+          <span class="chip">Sponsor track-record dossier</span>
+          <span class="chip">Correlated-exposure radar</span>
+          <span class="chip">"Why we said no" memory</span>
+        </div>
+      </div>
+      <div class="cluster">
+        <div class="hd"><span class="name">Composite / wiring<br><small style="font-weight:400;color:var(--muted);font-family:var(--sans);font-size:12px">the agent loop</small></span><span class="cnt">12 ideas</span></div>
+        <div class="chips">
+          <span class="chip star">Tripwire &rarr; breach spine</span>
+          <span class="chip">Pool-OR counterparty briefing</span>
+          <span class="chip">Structured vs narrated math</span>
+        </div>
+      </div>
+    </div>
+    <p class="menu-note">Everything unstarred is real and useful &mdash; it becomes the <span class="accent">investor-reel roadmap</span> ("here's how far this goes") rather than the live 2-minute demo, because none of it produces a single, binary on-stage flip.</p>
+  </section>
+
+  <section class="reveal">
+    <h2>3 &middot; The recommended play</h2>
+    <p class="lede plain"><em>"Seen This Movie Before."</em> A judge changes one word on a document. Enid recognizes it from a past deal, runs the playbook it learned there, and catches a breach it had already blessed. Here's the sequence on stage.</p>
+    <div class="flow">
+      <div class="step"><div class="st">Seed a prior deal <span class="tag plan">Planned</span></div><div class="sd">Deal <code>APEX-9</code>: its auditor was downgraded, and two quarters later the borrower restated. Enid stored that as a <em>lesson</em> keyed to "auditor change."</div></div>
+      <div class="step"><div class="st">The judge flips one field</div><div class="sd">On today's Q3 compliance cert, change the <b>auditor</b> from a Big-Four name to a regional firm. That's the whole input &mdash; unfakeable, judge-supplied.</div></div>
+      <div class="step"><div class="st">The tripwire fires</div><div class="sd">Exact-match on the auditor name via <code>trigger()</code>. A playbook card slides in showing its steps and <em>why</em> (<code>because</code>, <code>confidence</code>, times seen) &mdash; the memory is visibly the actor, not a search box.</div></div>
+      <div class="step"><div class="st">Step 1 runs: re-check last quarter</div><div class="sd">The playbook tells Enid to re-tie Q2's EBITDA against the amended financials.</div></div>
+      <div class="step"><div class="st">The restatement supersedes</div><div class="sd">Q2 EBITDA <span class="num">$50.0M &rarr; $43.0M</span>. Leverage recomputes <span class="num">5.9&times; &rarr; 6.9&times;</span> against a <span class="num">6.50&times;</span> covenant.</div></div>
+      <div class="step"><div class="st">A green quarter turns red</div><div class="sd">Q2, previously <b style="color:var(--good)">COMPLIANT</b>, flips to <b style="color:var(--bad)">RETROACTIVE BREACH</b> &mdash; with the superseded number and the now-falsified original cert shown.</div></div>
+      <div class="step kill"><div class="st">The kill switch</div><div class="sd">Toggle memory <b>off</b>, replay the same flip: the name is just a name, no card fires, the old cert stays green. The break is total &mdash; proof the memory was load-bearing.</div></div>
+    </div>
+    <div class="pitch">
+      <p class="q">"Change one name on a filing, and Enid recognizes the movie it's seen before &mdash; it runs the playbook that catches a covenant breach it signed off on last year."</p>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <h2>4 &middot; Worked example</h2>
+    <p class="lede plain">Left: the flip we'd stage, with real numbers. Right: the exact recipe from the live test &mdash; the phrasing that fails, and the phrasing that makes the old value go superseded with a trail.</p>
+    <div class="panels">
+      <div class="panel">
+        <div class="phd"><h4>The flip we'd show</h4><span class="tag plan">Planned</span></div>
+        <p class="sub">Covenant: max total net leverage &le; 6.50&times;. Same debt, one restated number.</p>
+        <div class="cert">
+          <div class="cap">Deal APEX &middot; Q2 &middot; net debt $295.0M</div>
+          <div class="row"><span class="lbl">EBITDA as certified</span><span class="val">$50.0M</span></div>
+          <div class="row"><span class="lbl">EBITDA restated (amended)</span><span class="val">$43.0M</span></div>
+          <div class="row"><span class="lbl">Covenant ceiling</span><span class="val">6.50&times;</span></div>
+        </div>
+        <div class="flip">
+          <div class="verdict ok"><div class="lev">5.9&times;</div><div class="st">Compliant</div><div class="cx">$295 / $50.0</div></div>
+          <div class="fa" aria-hidden="true">&rarr;</div>
+          <div class="verdict no"><div class="lev">6.9&times;</div><div class="st">Breach</div><div class="cx">$295 / $43.0</div></div>
+        </div>
+        <p class="sub" style="margin:14px 0 0">One superseded number reaches back and turns a signed-off quarter red. That's the whole story a judge retells.</p>
+      </div>
+      <div class="panel">
+        <div class="phd"><h4>The recipe that works</h4><span class="tag real">Real &middot; live acct</span></div>
+        <p class="sub">Same covenant restated to 4.0&times;. The only thing that changes is how the update is phrased.</p>
+        <div class="cmp">
+          <div class="box act">
+            <div class="h">&#10007; Amendment framing &mdash; no supersession</div>
+            <div class="fact" style="color:var(--ink-soft)">"...<em>increased to</em> 4.0&times; under the First Amendment"</div>
+            <div class="fact"><span class="badge b-act-bad">active</span> 3.5&times; &nbsp; <span class="badge b-act-bad">active</span> 4.0&times;</div>
+            <div class="fact" style="color:var(--muted)">reads as a new fact &mdash; both stay true, nothing to flip</div>
+          </div>
+          <div class="box exp">
+            <div class="h">&#10003; Canonical restatement &mdash; supersedes</div>
+            <div class="fact" style="color:var(--ink-soft)">"...covenant <em>is</em> 4.0&times;"</div>
+            <div class="fact"><span class="badge b-sup">superseded</span> 3.5&times; <span class="arrow-i">&rarr;</span> <span class="badge b-act">active</span> 4.0&times; <span style="color:var(--muted)">&nbsp;supersedes&rarr;old</span></div>
+            <div class="fact" style="color:var(--muted)"><span class="num">/revisions</span> returns the 2-node chain &mdash; the walkable trail</div>
+          </div>
+        </div>
+        <p class="sub" style="margin:14px 0 0">Works same-conversation and across quarters. Build rule: ingest the restated <b>value</b> as the same fact; keep "First Amendment" as on-screen flavor only.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <h2>5 &middot; The crack is closed</h2>
+    <div class="callout hedge">
+      <p class="ct">&#10003; Greenlit &mdash; the brick is set</p>
+      <p>The follow-up probe settled it: the restatement <b>does</b> retire the old value and leave a walkable trail &mdash; the earlier failure was <b>only phrasing</b>. Confirmed live: old fact &rarr; <b>superseded</b>, new fact &rarr; <b>active</b> with a <span class="num">supersedes</span> pointer, and <span class="num">/revisions</span> returns the 2-node chain. The hero is buildable exactly as designed.</p>
+      <p>The one rule to hold: feed the restatement as the <b>same canonical fact with a new value</b> ("...is 4.0&times;"), never as an amendment narrative ("...increased to 4.0&times; under the First Amendment").</p>
+    </div>
+    <div class="callout" style="background:var(--panel);border-color:var(--rule);margin-top:16px">
+      <p class="ct" style="font-size:17px">In the back pocket: the capacity ledger</p>
+      <p>Still worth keeping as a second beat or safety net: a borrower asks for a 3rd equity cure; Enid recalls <span class="num">"2 of 2 already used"</span> and rejects it &mdash; a "compliant &rarr; default" flip needing only recall + arithmetic. Not needed to de-risk the hero anymore, but a clean bonus.</p>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <h2>6 &middot; What's left to decide</h2>
+    <p class="lede plain">The gating question &mdash; "can a restatement supersede with lineage?" &mdash; is answered: <span style="color:var(--good);font-weight:650">yes</span>. Everything below is build craft, not risk.</p>
+    <div class="fork">
+      <div class="qbar" style="background:var(--good)">
+        <div class="k" style="opacity:.85">Gating question &mdash; settled</div>
+        <div class="q">&#10003; Restatement supersedes with a walkable trail. Build the spine.</div>
+      </div>
+      <div class="branches">
+        <div class="branch yes">
+          <div class="bh">Decision 1 &middot; the seed</div>
+          <div class="bt">One deal, or two linked?</div>
+          <p>The full "Seen This Movie Before" needs a prior deal (APEX-9: auditor downgrade &rarr; restatement) plus the current one. A single-deal cut is simpler but drops the "seen it on another deal" punch.</p>
+        </div>
+        <div class="branch yes">
+          <div class="bh">Decision 2 &middot; realness</div>
+          <div class="bt">Any real document to ingest?</div>
+          <p>One genuine cert or amendment earns a REAL honesty label &mdash; worth real points. Otherwise every input is SYNTHETIC (still fine, just labeled).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ask reveal">
+    <h2>Next step</h2>
+    <p class="rec">The risk is retired &mdash; <b>we build the spine.</b> Suggested first move: <b>lock the two-deal seed</b> (APEX-9 + current), then I stand up the pre-warm script that ingests every fact with the canonical phrasing so Saturday reads cached memory. Want me to draft that seed + pre-warm plan next?</p>
+    <div class="legend">
+      <span class="tag real">Real</span> live data from your XTrace account
+      <span class="tag plan">Planned</span> the demo we'd stage
+      <span class="tag analysis">Analysis</span> exploration &amp; judgement
+    </div>
+  </div>
+
+</div>

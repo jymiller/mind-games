@@ -1,0 +1,274 @@
+<title>Deal Memory — trust, audit & identity</title>
+<style>
+  :root {
+    --paper: #F3F2ED; --panel: #FBFAF6; --panel-2: #ECE9E0;
+    --ink: #17191F; --ink-soft: #3B404A; --muted: #6C7180; --rule: #E1DDD2;
+    --accent: #A9741B; --accent-ink: #8A5E12; --accent-tint: #F1E6CF;
+    --good: #2C7A57; --good-tint: #DCEBE2; --good-ink: #256B4B;
+    --bad: #AF382C; --bad-tint: #F1DAD5; --bad-ink: #97301F;
+    --shadow: 0 1px 2px rgba(20,18,12,.05), 0 8px 24px rgba(20,18,12,.06);
+    --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0F1216; --panel: #161A20; --panel-2: #1E232B;
+      --ink: #ECE9E1; --ink-soft: #C3C0B7; --muted: #878C97; --rule: #272C34;
+      --accent: #E0A63A; --accent-ink: #EBB856; --accent-tint: #2A2213;
+      --good: #4FB07E; --good-tint: #16271E; --good-ink: #6EC498;
+      --bad: #E26B57; --bad-tint: #2C1815; --bad-ink: #EC8873;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #F3F2ED; --panel: #FBFAF6; --panel-2: #ECE9E0; --ink: #17191F; --ink-soft: #3B404A;
+    --muted: #6C7180; --rule: #E1DDD2; --accent: #A9741B; --accent-ink: #8A5E12; --accent-tint: #F1E6CF;
+    --good: #2C7A57; --good-tint: #DCEBE2; --good-ink: #256B4B; --bad: #AF382C; --bad-tint: #F1DAD5; --bad-ink: #97301F;
+    --shadow: 0 1px 2px rgba(20,18,12,.05), 0 8px 24px rgba(20,18,12,.06);
+  }
+  :root[data-theme="dark"] {
+    --paper: #0F1216; --panel: #161A20; --panel-2: #1E232B; --ink: #ECE9E1; --ink-soft: #C3C0B7;
+    --muted: #878C97; --rule: #272C34; --accent: #E0A63A; --accent-ink: #EBB856; --accent-tint: #2A2213;
+    --good: #4FB07E; --good-tint: #16271E; --good-ink: #6EC498; --bad: #E26B57; --bad-tint: #2C1815; --bad-ink: #EC8873;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink-soft); font-family: var(--sans); line-height: 1.55;
+    -webkit-font-smoothing: antialiased; font-size: 16px; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: clamp(24px,5vw,60px) clamp(18px,4vw,40px) 90px; }
+  .eyebrow { font-size: 12px; font-weight: 650; letter-spacing: .13em; text-transform: uppercase; color: var(--accent-ink); margin: 0 0 12px; }
+  h1 { font-family: var(--serif); font-weight: 640; color: var(--ink); font-size: clamp(30px,5.2vw,46px); line-height: 1.04; letter-spacing: -.015em; margin: 0 0 14px; text-wrap: balance; }
+  .dek { font-size: clamp(16px,2.2vw,19px); color: var(--ink-soft); max-width: 62ch; margin: 0 0 18px; text-wrap: pretty; }
+  h2 { font-family: var(--serif); font-weight: 620; color: var(--ink); font-size: clamp(21px,3.2vw,28px); letter-spacing: -.01em; margin: 0 0 4px; text-wrap: balance; }
+  section { margin-top: clamp(40px,6.5vw,66px); }
+  .lede { font-size: 18px; color: var(--ink); margin: 0 0 22px; max-width: 64ch; }
+  .lede.plain::before { content: "In plain English"; display: block; font-family: var(--sans); font-size: 11px; font-weight: 650; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .accent { color: var(--accent-ink); }
+  b { color: var(--ink); font-weight: 600; }
+
+  .tag { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: .04em; padding: 3px 8px; border-radius: 5px; text-transform: uppercase; white-space: nowrap; vertical-align: middle; }
+  .tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
+  .tag.grounded { background: var(--good-tint); color: var(--good-ink); } .tag.grounded::before { background: var(--good); }
+  .tag.design { background: var(--accent-tint); color: var(--accent-ink); } .tag.design::before { background: var(--accent); }
+
+  .answer { background: var(--panel); border: 1px solid var(--rule); border-radius: 14px; padding: clamp(20px,3vw,30px); box-shadow: var(--shadow); margin-top: 30px; }
+  .answer .q { font-family: var(--serif); font-size: clamp(19px,3vw,24px); color: var(--ink); font-weight: 600; margin: 0 0 10px; text-wrap: balance; }
+  .answer p { margin: 0; max-width: 68ch; }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 680px){ .split { grid-template-columns: 1fr; } }
+  .col { border-radius: 14px; padding: 20px; border: 1px solid var(--rule); box-shadow: var(--shadow); }
+  .col.x { background: var(--panel); }
+  .col.you { background: var(--accent-tint); border-color: var(--accent); }
+  .col .ch { display: flex; align-items: center; gap: 9px; margin-bottom: 4px; }
+  .col h3 { font-family: var(--serif); font-size: 19px; color: var(--ink); margin: 0; font-weight: 620; }
+  .col .cs { font-size: 13px; color: var(--muted); margin: 0 0 14px; }
+  .col ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+  .col li { font-size: 14.5px; padding-left: 22px; position: relative; color: var(--ink-soft); }
+  .col li::before { position: absolute; left: 0; top: 0; font-family: var(--mono); font-weight: 700; }
+  .col.x li::before { content: "\2713"; color: var(--good); }
+  .col.you li::before { content: "+"; color: var(--accent-ink); font-size: 17px; line-height: 1.1; }
+
+  .prov { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 10px; }
+  .pcard { background: var(--panel); border: 1px solid var(--rule); border-radius: 11px; padding: 13px 15px; box-shadow: var(--shadow); }
+  .pcard .pt { font-family: var(--serif); font-size: 15px; color: var(--ink); font-weight: 600; margin-bottom: 3px; }
+  .pcard .pd { font-size: 13px; color: var(--muted); }
+  .pcard .pd code { font-family: var(--mono); font-size: 11.5px; color: var(--accent-ink); }
+
+  .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px){ .panels { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 14px; padding: 20px; box-shadow: var(--shadow); }
+  .panel .phd { display: flex; align-items: center; gap: 10px; margin-bottom: 3px; }
+  .panel h4 { font-family: var(--serif); font-size: 18px; color: var(--ink); margin: 0; font-weight: 620; }
+  .panel .sub { font-size: 13px; color: var(--muted); margin: 0 0 15px; }
+  .line { display: grid; grid-template-columns: 76px 1fr; gap: 10px; padding: 8px 0; border-top: 1px solid var(--rule); font-size: 14px; align-items: baseline; }
+  .line:first-of-type { border-top: 0; }
+  .line .k { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+  .line .v { color: var(--ink-soft); }
+  .line .v .yes { color: var(--good); font-weight: 600; } .line .v .no { color: var(--bad); font-weight: 700; }
+  .ledger { font-family: var(--mono); font-size: 12.5px; display: grid; gap: 8px; }
+  .ledger .row { background: var(--panel-2); border-radius: 8px; padding: 9px 11px; border-left: 3px solid var(--accent); }
+  .ledger .row .who { color: var(--ink); font-weight: 600; } .ledger .row .h { color: var(--muted); }
+
+  .gaps { display: grid; gap: 12px; }
+  .gap { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 15px 18px 15px 20px; box-shadow: var(--shadow); position: relative; }
+  .gap::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; border-radius: 5px 0 0 5px; background: var(--bad); }
+  .gap .gt { font-family: var(--serif); font-size: 17px; color: var(--ink); font-weight: 620; margin-bottom: 3px; }
+  .gap p { margin: 0; font-size: 14.5px; color: var(--ink-soft); max-width: 74ch; }
+  .gap .ev { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  .idtable { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  .idtable td { padding: 10px 12px; border-top: 1px solid var(--rule); vertical-align: top; }
+  .idtable tr:first-child td { border-top: 0; }
+  .idtable .ax { font-family: var(--mono); font-size: 13px; color: var(--accent-ink); white-space: nowrap; }
+  .idtable .use b { color: var(--ink); }
+  .tablewrap { overflow-x: auto; background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; box-shadow: var(--shadow); padding: 6px 8px; }
+
+  .replay { background: var(--ink); color: var(--paper); border-radius: 14px; padding: clamp(22px,3.5vw,32px); }
+  .replay h2 { color: var(--paper); }
+  .replay .flow { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 14px; align-items: center; }
+  .replay .node { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); border-radius: 8px; padding: 7px 12px; font-size: 13px; font-family: var(--mono); }
+  .replay .arr { color: var(--accent); font-weight: 700; }
+  .replay p { color: rgba(255,255,255,.82); margin: 0; max-width: 70ch; }
+  .replay .beat { margin-top: 14px; font-family: var(--serif); font-style: italic; font-size: clamp(16px,2.6vw,20px); color: #fff; text-wrap: pretty; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 26px; font-size: 12.5px; color: var(--muted); align-items: center; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal { opacity: 0; transform: translateY(10px); animation: rise .55s cubic-bezier(.2,.7,.3,1) forwards; }
+    @keyframes rise { to { opacity: 1; transform: none; } }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="reveal">
+    <p class="eyebrow">Deal Memory &middot; Trust, Audit &amp; Identity</p>
+    <h1>Can Enid prove who changed what &mdash; and replay it?</h1>
+    <p class="dek">Our capability tests proved Enid can remember and correct. They said nothing about <em>trust</em>. This is the honest picture &mdash; grounded in a live probe of the API &mdash; of what XTrace records, what it doesn't, and what you build yourself.</p>
+    <div class="answer">
+      <p class="q">Short answer: the system remembers <em>what</em> a number was and <em>when</em> it changed &mdash; but not, reliably, <em>who</em> changed it, and a deleted memory leaves no trace.</p>
+      <p>So value-level traceability is real and native. The <b>who</b> and the <b>immutable, tamper-evident</b> parts &mdash; the ones a regulator cares about &mdash; you add in your own layer. Below is exactly where the line falls.</p>
+    </div>
+  </header>
+
+  <section class="reveal">
+    <h2>The division of labor</h2>
+    <p class="lede plain">XTrace is a memory, not a system of record. It tracks how beliefs change; it does not seal them against tampering or reliably stamp who made each change. That second job is yours &mdash; and the wet-ink chassis already does it.</p>
+    <div class="split">
+      <div class="col x">
+        <div class="ch"><h3>XTrace gives you</h3><span class="tag grounded">Grounded</span></div>
+        <p class="cs">Value provenance &mdash; the history of the numbers</p>
+        <ul>
+          <li>The value history: <span class="num">3.5&times; &rarr; 4.0&times;</span>, timestamped, with a link between old and new</li>
+          <li>Where each fact came from &mdash; which conversation, which turn, which role</li>
+          <li>The identity tags you set when writing (deal, officer, firm)</li>
+          <li>A private / shared boundary on every memory</li>
+        </ul>
+      </div>
+      <div class="col you">
+        <div class="ch"><h3>You add</h3><span class="tag design">Your layer</span></div>
+        <p class="cs">The immutable ledger &mdash; the record of record</p>
+        <ul>
+          <li>An append-only, hash-chained log &mdash; each entry seals the one before, so tampering shows</li>
+          <li>The acting identity stamped at the moment of the write (Jane, then Bob)</li>
+          <li>Every event: recorded &middot; corrected &middot; recalled &middot; decided</li>
+          <li>It survives deletes &mdash; the record outlives the memory</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <h2>What each memory actually carries</h2>
+    <p class="lede plain">A single memory is not a bare fact &mdash; it comes with a paper trail. This is what the live API returned for one covenant.</p>
+    <div class="prov">
+      <div class="pcard"><div class="pt">Which conversation &amp; turn</div><div class="pd"><code>source_event_ids: ["audit-q1_0"]</code> &mdash; traces to the exact message</div></div>
+      <div class="pcard"><div class="pt">Who spoke</div><div class="pd"><code>source_role: user</code> &mdash; user, assistant, or system</div></div>
+      <div class="pcard"><div class="pt">The event it belongs to</div><div class="pd"><code>episode_id</code> &mdash; the session it was learned in</div></div>
+      <div class="pcard"><div class="pt">When</div><div class="pd"><code>created_at</code> / <code>updated_at</code> timestamps</div></div>
+      <div class="pcard"><div class="pt">Whose &amp; where</div><div class="pd"><code>user_id</code> &middot; <code>agent_id</code> &middot; <code>app_id</code> &middot; <code>group_ids</code></div></div>
+      <div class="pcard"><div class="pt">Belief state</div><div class="pd"><code>status: active</code> / <code>superseded</code> + the <code>supersedes</code> link</div></div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <h2>Worked example: the covenant goes 3.5&times; &rarr; 4.0&times;</h2>
+    <p class="lede plain">Officer Jane recorded 3.5&times;. Later, officer Bob corrected it to 4.0&times;. Here's precisely what each layer can tell you about that change.</p>
+    <div class="panels">
+      <div class="panel">
+        <div class="phd"><h4>What XTrace's chain tells you</h4><span class="tag grounded">Grounded</span></div>
+        <p class="sub">Pulled live from the revision chain.</p>
+        <div class="line"><span class="k">Value</span><span class="v"><span class="num">3.5&times;</span> &rarr; <span class="num">4.0&times;</span> &nbsp;<span class="yes">&#10003;</span></span></div>
+        <div class="line"><span class="k">When</span><span class="v"><span class="num">08:45:25</span> &rarr; <span class="num">08:45:34</span> &nbsp;<span class="yes">&#10003;</span></span></div>
+        <div class="line"><span class="k">Linked</span><span class="v">new points back to old &nbsp;<span class="yes">&#10003;</span></span></div>
+        <div class="line"><span class="k">Who</span><span class="v"><span class="no">&#10007;</span> the old version came back labeled <b>Bob</b> (the corrector) &mdash; not <b>Jane</b>, who wrote it</span></div>
+      </div>
+      <div class="panel">
+        <div class="phd"><h4>What your ledger adds</h4><span class="tag design">Your layer</span></div>
+        <p class="sub">Append-only, hash-chained &mdash; the wet-ink pattern.</p>
+        <div class="ledger">
+          <div class="row"><span class="who">Jane</span> set leverage = 3.5&times; &middot; Q1 <div class="h">seal #a17f&hellip;</div></div>
+          <div class="row"><span class="who">Bob</span> corrected to 4.0&times; &middot; Q3 <div class="h">seal #9f2c&hellip; (seals #a17f)</div></div>
+        </div>
+        <p class="sub" style="margin:14px 0 0">Change any line and the seals stop matching &mdash; tampering is visible. Delete the memory from XTrace, and this entry still stands.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <h2>The three gaps to design around</h2>
+    <p class="lede plain">None of these are dealbreakers &mdash; they're the reason the immutable ledger lives in your layer, not XTrace's. All three are confirmed on the live API.</p>
+    <div class="gaps">
+      <div class="gap">
+        <div class="gt">No system-wide audit log</div>
+        <p>There's no "everything that happened" feed &mdash; only the per-fact revision chain. You reconstruct the timeline yourself.</p>
+        <div class="ev">probed: <span class="num">/audit &middot; /events &middot; /activity &middot; /logs &middot; /memories/{id}/history</span> &rarr; all 404</div>
+      </div>
+      <div class="gap">
+        <div class="gt">Author attribution isn't reliable</div>
+        <p>After Bob corrected Jane's fact, the old version came back attributed to <b>Bob</b>. The chain is trustworthy for values and times &mdash; not for "who." Stamp the actor yourself, at write time.</p>
+        <div class="ev">probed: superseded node returned <span class="num">agent = officer-bob</span>, not officer-jane</div>
+      </div>
+      <div class="gap">
+        <div class="gt">Delete is permanent</div>
+        <p>Removing a memory erases it outright &mdash; no tombstone, no trace. So XTrace alone is erasable, not tamper-evident. Your append-only ledger is what makes the record survive.</p>
+        <div class="ev">probed: after delete, <span class="num">get &rarr; 404 not found</span> (only group <em>archive</em> is a soft flag)</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <h2>Your own export proves it: a snapshot, not a log</h2>
+    <p class="lede plain">You exported the whole org memory &mdash; a clean, self-contained file with an offline viewer. But it captures <em>today's truth</em>, not the trail of how it got there.</p>
+    <div class="prov" style="margin-bottom:16px">
+      <div class="pcard"><div class="pt" style="font-family:var(--mono);font-size:24px">19</div><div class="pd">conversations</div></div>
+      <div class="pcard"><div class="pt" style="font-family:var(--mono);font-size:24px">38</div><div class="pd">turns</div></div>
+      <div class="pcard"><div class="pt" style="font-family:var(--mono);font-size:24px">74</div><div class="pd">memories</div></div>
+      <div class="pcard" style="border-color:var(--bad)"><div class="pt" style="font-family:var(--mono);font-size:24px;color:var(--bad-ink)">0</div><div class="pd">superseded / prior versions</div></div>
+    </div>
+    <div class="gap">
+      <div class="gt">The old values are simply gone</div>
+      <p><b>6</b> current facts carry a pointer that says "I replaced an earlier value" &mdash; and <b>all 6</b> of those earlier values are <b>absent from the export</b>. The pointer dangles into nothing.</p>
+      <div class="ev">e.g. deal-audit: "leverage is 4.0&times; <span class="num">(supersedes 8d6f&hellip;)</span>" &mdash; but <span class="num">8d6f</span> (the 3.5&times;, written by Jane) isn't in the file</div>
+    </div>
+    <p style="font-size:14.5px;color:var(--ink-soft);margin-top:14px;max-width:72ch">The instant a number is corrected, its prior value drops out of the current view &mdash; and out of any export. The before-and-after survives only in the live per-fact chain (where, remember, the "who" is unreliable). <b>This is the clearest proof yet that the replayable, immutable record has to be yours.</b></p>
+  </section>
+
+  <section class="reveal">
+    <h2>Not one brain &mdash; roles &amp; boundaries</h2>
+    <p class="lede plain">Memory isn't a single undifferentiated pool. Six identity axes let you model who and what a memory belongs to &mdash; so a deal team, individual officers, and the firm can share the right slice and keep the rest private.</p>
+    <div class="tablewrap">
+      <table class="idtable">
+        <tr><td class="ax">user_id</td><td class="use"><b>The deal.</b> The memory namespace &mdash; NRA-1's world. Corrections supersede within it.</td></tr>
+        <tr><td class="ax">agent_id</td><td class="use"><b>The officer / role.</b> Jane vs Bob vs the agent itself.</td></tr>
+        <tr><td class="ax">app_id</td><td class="use"><b>The firm.</b> A shared, firm-wide knowledge base that outlives any analyst.</td></tr>
+        <tr><td class="ax">conv_id</td><td class="use"><b>One session.</b> A single quarter's review.</td></tr>
+        <tr><td class="ax">group_ids</td><td class="use"><b>A shared pool.</b> The deal team &mdash; how one officer's covenant reaches another.</td></tr>
+        <tr><td class="ax">namespace</td><td class="use"><b>A working context.</b> Scopes learned rules to where they apply.</td></tr>
+      </table>
+    </div>
+    <p style="font-size:14.5px;color:var(--ink-soft);margin-top:14px;max-width:70ch"><b>Private vs global:</b> memories judged personal stay with their owner and are never shared; only shareable ones get tagged to a group or the firm store. The boundary is built in &mdash; you just have to write with the right identity.</p>
+  </section>
+
+  <section class="reveal replay">
+    <h2>The payoff: replay the deal</h2>
+    <div class="flow">
+      <span class="node">Jane records</span><span class="arr">&rarr;</span>
+      <span class="node">Bob inherits</span><span class="arr">&rarr;</span>
+      <span class="node">rule fires</span><span class="arr">&rarr;</span>
+      <span class="node">number corrected</span><span class="arr">&rarr;</span>
+      <span class="node">verdict flips</span>
+    </div>
+    <p>Your ledger plays every event back in order, each entry sealed and identity-stamped, cross-checked against XTrace's value chain for the numbers. You don't just show the current state &mdash; you show how it got there, and prove nobody quietly rewrote it.</p>
+    <p class="beat">"Every belief Enid holds, you can trace to who put it there and when &mdash; and prove it wasn't tampered with." That's the trust beat, and almost nobody in the room will have it.</p>
+  </section>
+
+  <div class="legend reveal">
+    <span class="tag grounded">Grounded</span> confirmed on the live XTrace API today
+    <span class="tag design">Your layer</span> the ledger you build (wet-ink already has it)
+  </div>
+
+</div>

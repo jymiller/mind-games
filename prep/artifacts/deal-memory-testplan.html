@@ -1,0 +1,439 @@
+<title>Deal Memory — the test plan</title>
+<style>
+  :root {
+    --paper: #F3F2ED; --panel: #FBFAF6; --panel-2: #ECE9E0;
+    --ink: #17191F; --ink-soft: #3B404A; --muted: #6C7180; --rule: #E1DDD2; --rule-2: #CFC9BC;
+    --accent: #A9741B; --accent-ink: #8A5E12; --accent-tint: #F1E6CF;
+    --good: #2C7A57; --good-tint: #DCEBE2; --good-ink: #256B4B;
+    --bad: #AF382C; --bad-tint: #F1DAD5; --bad-ink: #97301F;
+    --t-fact: #3E6DA6; --t-episode: #7A5AA6; --t-artifact: #A9741B; --t-proc: #2E8B7A;
+    --shadow: 0 1px 2px rgba(20,18,12,.05), 0 8px 24px rgba(20,18,12,.06);
+    --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0F1216; --panel: #161A20; --panel-2: #1E232B;
+      --ink: #ECE9E1; --ink-soft: #C3C0B7; --muted: #878C97; --rule: #272C34; --rule-2: #39404A;
+      --accent: #E0A63A; --accent-ink: #EBB856; --accent-tint: #2A2213;
+      --good: #4FB07E; --good-tint: #16271E; --good-ink: #6EC498;
+      --bad: #E26B57; --bad-tint: #2C1815; --bad-ink: #EC8873;
+      --t-fact: #5B8DD6; --t-episode: #9E7FD1; --t-artifact: #D69A3A; --t-proc: #56B3A0;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #F3F2ED; --panel: #FBFAF6; --panel-2: #ECE9E0; --ink: #17191F; --ink-soft: #3B404A;
+    --muted: #6C7180; --rule: #E1DDD2; --rule-2: #CFC9BC; --accent: #A9741B; --accent-ink: #8A5E12; --accent-tint: #F1E6CF;
+    --good: #2C7A57; --good-tint: #DCEBE2; --good-ink: #256B4B; --bad: #AF382C; --bad-tint: #F1DAD5; --bad-ink: #97301F;
+    --t-fact: #3E6DA6; --t-episode: #7A5AA6; --t-artifact: #A9741B; --t-proc: #2E8B7A;
+    --shadow: 0 1px 2px rgba(20,18,12,.05), 0 8px 24px rgba(20,18,12,.06);
+  }
+  :root[data-theme="dark"] {
+    --paper: #0F1216; --panel: #161A20; --panel-2: #1E232B; --ink: #ECE9E1; --ink-soft: #C3C0B7;
+    --muted: #878C97; --rule: #272C34; --rule-2: #39404A; --accent: #E0A63A; --accent-ink: #EBB856; --accent-tint: #2A2213;
+    --good: #4FB07E; --good-tint: #16271E; --good-ink: #6EC498; --bad: #E26B57; --bad-tint: #2C1815; --bad-ink: #EC8873;
+    --t-fact: #5B8DD6; --t-episode: #9E7FD1; --t-artifact: #D69A3A; --t-proc: #56B3A0;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink-soft); font-family: var(--sans); line-height: 1.55; -webkit-font-smoothing: antialiased; font-size: 16px; }
+  .wrap { max-width: 940px; margin: 0 auto; padding: clamp(24px,5vw,60px) clamp(18px,4vw,40px) 90px; }
+  .eyebrow { font-size: 12px; font-weight: 650; letter-spacing: .13em; text-transform: uppercase; color: var(--accent-ink); margin: 0 0 12px; }
+  h1 { font-family: var(--serif); font-weight: 640; color: var(--ink); font-size: clamp(30px,5.2vw,46px); line-height: 1.04; letter-spacing: -.015em; margin: 0 0 14px; text-wrap: balance; }
+  .dek { font-size: clamp(16px,2.2vw,19px); color: var(--ink-soft); max-width: 64ch; margin: 0; text-wrap: pretty; }
+  h2 { font-family: var(--serif); font-weight: 620; color: var(--ink); font-size: clamp(21px,3.2vw,28px); letter-spacing: -.01em; margin: 0 0 4px; text-wrap: balance; }
+  .phaseh { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); margin: 26px 0 12px; font-weight: 650; }
+  section { margin-top: clamp(40px,6.5vw,60px); }
+  .lede { font-size: 17.5px; color: var(--ink); margin: 0 0 20px; max-width: 66ch; }
+  .lede.plain::before { content: "In plain English"; display: block; font-family: var(--sans); font-size: 11px; font-weight: 650; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .num, code { font-family: var(--mono); }
+  b { color: var(--ink); font-weight: 600; }
+  .banner { background: var(--accent-tint); border: 1px solid var(--accent); border-radius: 12px; padding: 14px 18px; margin-top: 22px; font-size: 15px; color: var(--ink); }
+  .banner b { color: var(--accent-ink); }
+
+  /* use-case contrast */
+  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+  @media (max-width: 620px){ .vs { grid-template-columns: 1fr; } }
+  .vscol { border-radius: 12px; padding: 16px 18px; border: 1px solid; box-shadow: var(--shadow); }
+  .vscol.blind { background: var(--panel); border-color: var(--rule); }
+  .vscol.mem { background: var(--good-tint); border-color: var(--good); }
+  .vscol .vt { font-family: var(--serif); font-size: 17px; color: var(--ink); font-weight: 620; margin-bottom: 6px; }
+  .vscol p { margin: 0; font-size: 14.5px; color: var(--ink-soft); }
+  .vscol.blind .verdict { color: var(--good-ink); font-weight: 700; }
+  .vscol.mem .verdict { color: var(--bad-ink); font-weight: 700; }
+
+  /* props */
+  .props { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap: 12px; }
+  .prop { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 15px 16px; box-shadow: var(--shadow); }
+  .prop .ph { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .prop .chk { color: var(--good); font-weight: 700; font-family: var(--mono); }
+  .prop .pn { font-family: var(--serif); font-size: 15.5px; color: var(--ink); font-weight: 620; line-height: 1.1; }
+  .prop .pd { font-size: 13.5px; color: var(--ink-soft); }
+  .prop .pd .m { font-family: var(--mono); font-size: 12px; }
+
+  /* step ladder */
+  .steps { display: grid; gap: 12px; }
+  .step { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 15px 17px 15px 18px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+  .step::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; }
+  .step.warm::before { background: var(--accent); } .step.live::before { background: var(--ink-soft); }
+  .step .stop { display: flex; align-items: center; gap: 11px; flex-wrap: wrap; }
+  .step .bn { font-family: var(--mono); font-weight: 700; font-size: 13px; color: var(--paper); background: var(--ink); width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; flex-shrink: 0; }
+  .step.warm .bn { background: var(--accent); }
+  .step .act { font-size: 15px; color: var(--ink); font-weight: 600; flex: 1 1 auto; min-width: 200px; }
+  .step .exp { margin-top: 9px; font-size: 14px; color: var(--ink-soft); padding-left: 41px; }
+  .step .exp .arw { color: var(--accent-ink); font-weight: 700; }
+  .step .exp .hl { background: var(--panel-2); border-radius: 5px; padding: 1px 5px; font-family: var(--mono); font-size: 12.5px; }
+  .step .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; padding-left: 41px; align-items: center; }
+  .beatp { font-family: var(--mono); font-size: 10.5px; font-weight: 650; letter-spacing: .03em; padding: 2px 7px; border-radius: 5px; background: var(--panel-2); color: var(--muted); text-transform: uppercase; }
+  .tt { font-family: var(--mono); font-size: 11px; font-weight: 650; padding: 2px 8px; border-radius: 5px; border: 1.5px solid; background: transparent; }
+  .tt.fact { color: var(--t-fact); border-color: var(--t-fact); } .tt.episode { color: var(--t-episode); border-color: var(--t-episode); }
+  .tt.artifact { color: var(--t-artifact); border-color: var(--t-artifact); } .tt.proc { color: var(--t-proc); border-color: var(--t-proc); }
+  .cf { font-family: var(--mono); font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 5px; letter-spacing: .02em; margin-left: auto; }
+  .cf.grounded { background: var(--good-tint); color: var(--good-ink); }
+  .cf.verify { background: var(--accent-tint); color: var(--accent-ink); }
+  .cf.calc { background: var(--panel-2); color: var(--muted); }
+
+  /* predicted outcome */
+  .outcome { background: var(--panel); border: 1px solid var(--rule); border-radius: 16px; padding: clamp(20px,3.5vw,30px); box-shadow: var(--shadow); }
+  .flip { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px; margin: 6px 0 16px; }
+  @media (max-width: 520px){ .flip { grid-template-columns: 1fr; } .flip .fa { transform: rotate(90deg); } }
+  .vbox { border-radius: 12px; padding: 16px; text-align: center; border: 1.5px solid; }
+  .vbox .lv { font-family: var(--mono); font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+  .vbox .lb { font-family: var(--sans); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-top: 6px; }
+  .vbox .cx { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 5px; }
+  .vbox.ok { background: var(--good-tint); border-color: var(--good); } .vbox.ok .lb { color: var(--good-ink); }
+  .vbox.no { background: var(--bad-tint); border-color: var(--bad); } .vbox.no .lb { color: var(--bad-ink); }
+  .fa { font-size: 24px; color: var(--accent); text-align: center; }
+  .fa small { display: block; font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .outcome .oc { font-size: 14.5px; color: var(--ink-soft); margin: 0; }
+  .outcome .oc b { color: var(--ink); }
+
+  /* pass criteria */
+  .crit { display: grid; gap: 9px; }
+  .cr { display: grid; grid-template-columns: 24px 1fr auto; gap: 12px; align-items: start; background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 12px 15px; box-shadow: var(--shadow); }
+  .cr .box { font-family: var(--mono); color: var(--muted); font-size: 15px; line-height: 1.3; }
+  .cr .ct { font-size: 14.5px; color: var(--ink-soft); } .cr .ct b { color: var(--ink); }
+  .cr .cf2 { align-self: center; }
+
+  .callout { background: var(--panel); border: 1px solid var(--rule); border-left: 4px solid var(--accent); border-radius: 10px; padding: 15px 18px; box-shadow: var(--shadow); }
+  .callout p { margin: 0; font-size: 14.5px; color: var(--ink-soft); }
+  .callout p + p { margin-top: 8px; }
+  .callout b { color: var(--ink); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 22px; font-size: 12.5px; color: var(--muted); align-items: center; }
+  /* ===== one-picture storyboard poster ===== */
+  .poster { border: 1.5px solid var(--rule-2); border-radius: 16px; background: var(--panel); box-shadow: var(--shadow); padding: clamp(16px,2.5vw,26px); margin-top: 20px; }
+  .poster .ptitle { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); text-align: center; margin-bottom: 16px; }
+  .av { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-weight: 700; font-size: 13px; flex-shrink: 0; background: var(--panel-2); border: 2px solid; }
+  .av.desk { border-color: var(--t-fact); color: var(--t-fact); }
+  .av.deal { border-color: var(--t-artifact); color: var(--t-artifact); }
+  .av.sys { border-color: var(--ink-soft); color: var(--ink); }
+  .av.judge { border-color: var(--t-episode); color: var(--t-episode); }
+  .judgestrip { display: flex; justify-content: center; margin-bottom: 14px; }
+  .judgetag { display: inline-flex; align-items: center; gap: 11px; background: var(--panel-2); border: 1.5px dashed var(--t-episode); border-radius: 999px; padding: 7px 16px 7px 8px; }
+  .judgetag .jt { font-size: 13px; color: var(--ink-soft); } .judgetag .jt b { color: var(--ink); }
+  .stage { display: grid; grid-template-columns: 1fr 1.25fr 1fr; gap: 12px; align-items: stretch; }
+  @media (max-width: 720px){ .stage { grid-template-columns: 1fr; } }
+  .zone { border-radius: 12px; padding: 14px 15px; border: 1px solid var(--rule); background: var(--paper); }
+  .zone.core { border-color: var(--accent); background: var(--accent-tint); }
+  .zt { font-family: var(--mono); font-size: 10px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); text-align: center; margin-bottom: 13px; line-height: 1.3; }
+  .zone.core .zt { color: var(--accent-ink); }
+  .actors { display: flex; flex-direction: column; gap: 13px; }
+  .actor { display: flex; align-items: center; gap: 11px; }
+  .an { font-size: 14px; color: var(--ink); font-weight: 600; line-height: 1.15; }
+  .ar { font-size: 12px; color: var(--muted); }
+  .brain { text-align: center; }
+  .brain .bt { font-family: var(--serif); font-size: 19px; color: var(--ink); font-weight: 640; }
+  .brain .bs { font-size: 12px; color: var(--muted); margin-bottom: 13px; }
+  .typechips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 13px; }
+  .tc { font-family: var(--mono); font-size: 10px; font-weight: 650; padding: 3px 7px; border-radius: 5px; border: 1.5px solid; background: transparent; }
+  .tc.fact { color: var(--t-fact); border-color: var(--t-fact); } .tc.episode { color: var(--t-episode); border-color: var(--t-episode); }
+  .tc.artifact { color: var(--t-artifact); border-color: var(--t-artifact); } .tc.proc { color: var(--t-proc); border-color: var(--t-proc); }
+  .miniscore { font-family: var(--mono); font-size: 15px; font-weight: 700; }
+  .miniscore .g { color: var(--good-ink); } .miniscore .b { color: var(--bad-ink); } .miniscore .a { color: var(--accent); font-weight: 400; }
+  .brain .bcap { font-size: 10.5px; color: var(--muted); margin-top: 6px; font-family: var(--mono); }
+  .flowlink { text-align: center; font-size: 12px; color: var(--ink-soft); margin: 14px 0 2px; }
+  .storyflow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 9px; margin-top: 20px; justify-content: center; }
+  .sstep { flex: 1 1 195px; max-width: 250px; background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; padding: 12px 12px 11px; position: relative; }
+  .sstep .sn { position: absolute; top: -10px; left: 12px; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: var(--paper); font-family: var(--mono); font-weight: 700; font-size: 12px; display: grid; place-items: center; }
+  .sstep .sx { font-size: 12.5px; color: var(--ink-soft); margin-top: 5px; line-height: 1.4; } .sstep .sx b { color: var(--ink); }
+  .who { display: inline-block; margin-top: 9px; font-family: var(--mono); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 5px; border: 1.5px solid; background: transparent; text-transform: uppercase; letter-spacing: .03em; }
+  .who.desk { color: var(--t-fact); border-color: var(--t-fact); } .who.deal { color: var(--t-artifact); border-color: var(--t-artifact); }
+  .who.sys { color: var(--ink); border-color: var(--ink-soft); } .who.judge { color: var(--t-episode); border-color: var(--t-episode); }
+  .outcomestrip { margin-top: 20px; border-top: 1px solid var(--rule); padding-top: 18px; text-align: center; }
+  .outcomestrip .big { font-family: var(--mono); font-size: clamp(18px,3.6vw,28px); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .outcomestrip .big .g { color: var(--good-ink); } .outcomestrip .big .b { color: var(--bad-ink); } .outcomestrip .big .a { color: var(--accent); font-weight: 400; }
+  .outcomestrip .osub { font-size: 13px; color: var(--muted); margin-top: 8px; max-width: 62ch; margin-left: auto; margin-right: auto; }
+  /* cast roster */
+  .cast { display: grid; grid-template-columns: repeat(auto-fit, minmax(255px,1fr)); gap: 12px; margin-top: 20px; }
+  .castcard { display: flex; gap: 12px; background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 15px; box-shadow: var(--shadow); align-items: flex-start; }
+  .cc-role { font-family: var(--mono); font-size: 10px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+  .cc-name { font-family: var(--serif); font-size: 16px; color: var(--ink); font-weight: 620; line-height: 1.1; margin: 2px 0 5px; }
+  .cc-does { font-size: 13.5px; color: var(--ink-soft); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal { opacity: 0; transform: translateY(10px); animation: rise .55s cubic-bezier(.2,.7,.3,1) forwards; }
+    @keyframes rise { to { opacity: 1; transform: none; } }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="reveal">
+    <p class="eyebrow">Deal Memory &middot; Test Design &mdash; review before running</p>
+    <h1>The plan, and the outcome we expect</h1>
+    <p class="dek">Define the use case, confirm the props are ready, spell out exactly how memory gets used, and predict the result &mdash; so we agree on what success looks like <em>before</em> a single call runs. Then the harness just checks reality against this page.</p>
+    <div class="banner"><b>The bet:</b> a covenant quarter everyone signed off as <b>COMPLIANT (5.90&times;)</b> will be re-derived from memory as a <b>RETROACTIVE BREACH (6.86&times;)</b> &mdash; and a memoryless watcher will miss it entirely. If the harness reproduces that, the demo is real.</div>
+  </header>
+
+  <section class="reveal">
+    <h2>The use case, in one picture</h2>
+    <p class="lede plain">Everything in one frame: who's connected to whom, what XTrace remembers (the four memory types, colour-keyed), and how those memories combine to catch a breach a memoryless tool would miss. The loan (Blackford &rarr; Northwind) is the spine; the numbered path <b>1&ndash;3</b> is the engine. (The roster is under "The cast" below.)</p>
+    <div class="poster">
+      <div class="ptitle">The Northwind covenant &mdash; one deal, remembered</div>
+
+      <style>
+      .dgwrap{position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;width:100vw;background:#F5F3EC;border-top:1px solid #E1DDD2;border-bottom:1px solid #E1DDD2;padding:26px 20px;margin-top:22px;box-sizing:border-box}
+      #ucpsvg{display:block;width:100%;max-width:1340px;height:auto;margin:0 auto;font-family:ui-monospace,Menlo,Consolas,monospace}
+      #ucpsvg rect.node{stroke-width:1.5}
+      #ucpsvg .nt{font-weight:700;font-size:13.5px}
+      #ucpsvg .ns{font-size:11px;opacity:.85}
+      #ucpsvg .r-org{fill:#efece4;stroke:#b8ad97} #ucpsvg .t-org{fill:#3a3428}
+      #ucpsvg .r-person{fill:#eef1f4;stroke:#8891a0} #ucpsvg .t-person{fill:#2a2f38}
+      #ucpsvg .r-agent{fill:#e9eaed;stroke:#3b404a} #ucpsvg .t-agent{fill:#20242c}
+      #ucpsvg .r-fact{fill:#e8f0f9;stroke:#3E6DA6} #ucpsvg .t-fact{fill:#1c2a38}
+      #ucpsvg .r-epi{fill:#efeaf6;stroke:#7A5AA6} #ucpsvg .t-epi{fill:#2c2140}
+      #ucpsvg .r-art{fill:#faf0d8;stroke:#A9741B} #ucpsvg .t-art{fill:#3a2c12}
+      #ucpsvg .r-proc{fill:#e2f1ee;stroke:#2E8B7A} #ucpsvg .t-proc{fill:#123a33}
+      #ucpsvg .r-breach{fill:#f6dcd7;stroke:#AF382C} #ucpsvg .t-breach{fill:#5a1a12}
+      #ucpsvg .lbl{font-size:11.5px;fill:#4a4436;paint-order:stroke;stroke:#F5F3EC;stroke-width:4px;stroke-linejoin:round}
+      #ucpsvg .elbl{font-size:11.5px;font-weight:700;fill:#97301f;paint-order:stroke;stroke:#F5F3EC;stroke-width:4px;stroke-linejoin:round}
+      #ucpsvg .zonel{font-size:11.5px;letter-spacing:.1em;fill:#8891a0;font-weight:700}
+      #ucpsvg .memt{font-size:13px;letter-spacing:.05em;fill:#8a5e12;font-weight:700}
+      </style>
+      <div class="dgwrap"><svg id="ucpsvg" viewBox="0 0 1360 674" role="img" aria-label="How the Northwind use case fits together">
+        <defs>
+          <marker id="a" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#8a7a5a"/></marker>
+          <marker id="r" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L9,5 L0,10 z" fill="#AF382C"/></marker>
+        </defs>
+        <!-- memory panel -->
+        <rect x="500" y="88" width="380" height="360" rx="14" fill="#fff" stroke="#c9c2b4" stroke-width="1.5"/>
+        <text class="memt" x="690" y="116" text-anchor="middle">XTRACE MEMORY &#183; what it stores</text>
+        <!-- nodes -->
+        <rect class="node r-org"    x="60"   y="96"  width="180" height="56" rx="10"/>
+        <text class="nt t-org" x="150" y="120" text-anchor="middle">Blackford Credit</text>
+        <text class="ns t-org" x="150" y="136" text-anchor="middle">the fund &#183; our client</text>
+        <rect class="node r-person" x="60"   y="240" width="150" height="52" rx="10"/>
+        <text class="nt t-person" x="135" y="270" text-anchor="middle">Officer Jane</text>
+        <rect class="node r-person" x="60"   y="330" width="150" height="52" rx="10"/>
+        <text class="nt t-person" x="135" y="360" text-anchor="middle">Officer Bob</text>
+        <rect class="node r-agent"  x="300"  y="276" width="160" height="72" rx="10"/>
+        <text class="nt t-agent" x="380" y="308" text-anchor="middle">Enid</text>
+        <text class="ns t-agent" x="380" y="324" text-anchor="middle">the agent</text>
+        <rect class="node r-proc" x="525" y="150" width="330" height="58" rx="9"/>
+        <text class="nt t-proc" x="690" y="175" text-anchor="middle">Procedure</text>
+        <text class="ns t-proc" x="690" y="191" text-anchor="middle">auditor-change playbook</text>
+        <rect class="node r-fact" x="525" y="222" width="330" height="58" rx="9"/>
+        <text class="nt t-fact" x="690" y="247" text-anchor="middle">Fact &#183; semantic</text>
+        <text class="ns t-fact" x="690" y="263" text-anchor="middle">covenant 6.50&#215; &#183; EBITDA 50 &#8594; 43</text>
+        <rect class="node r-art" x="525" y="294" width="330" height="58" rx="9"/>
+        <text class="nt t-art" x="690" y="319" text-anchor="middle">Artifact</text>
+        <text class="ns t-art" x="690" y="335" text-anchor="middle">agreement + compliance certs</text>
+        <rect class="node r-epi" x="525" y="366" width="330" height="58" rx="9"/>
+        <text class="nt t-epi" x="690" y="391" text-anchor="middle">Episode</text>
+        <text class="ns t-epi" x="690" y="407" text-anchor="middle">each quarterly review</text>
+        <rect class="node r-org" x="1150" y="150" width="180" height="52" rx="10"/>
+        <text class="nt t-org" x="1240" y="172" text-anchor="middle">Meridian</text>
+        <text class="ns t-org" x="1240" y="188" text-anchor="middle">the sponsor</text>
+        <rect class="node r-org" x="1150" y="270" width="180" height="56" rx="10"/>
+        <text class="nt t-org" x="1240" y="294" text-anchor="middle">Northwind</text>
+        <text class="ns t-org" x="1240" y="310" text-anchor="middle">the borrower</text>
+        <rect class="node r-org" x="1150" y="390" width="180" height="56" rx="10"/>
+        <text class="nt t-org" x="1240" y="414" text-anchor="middle">Auditor</text>
+        <text class="ns t-org" x="1240" y="430" text-anchor="middle">Halloran &#8594; Brandt</text>
+        <rect class="node r-breach" x="520" y="574" width="520" height="76" rx="12"/>
+        <text class="t-breach" x="780" y="608" text-anchor="middle" font-weight="700" font-size="16">Q2: COMPLIANT &#8594; RETRO-BREACH &#183; 6.86&#215;</text>
+        <text class="t-breach" x="780" y="628" text-anchor="middle" font-size="12.5">a signed-off quarter, recomputed on the restated $43M EBITDA</text>
+        <!-- structural arrows -->
+        <path d="M210,266 C255,266 262,300 298,303" fill="none" stroke="#9a8a68" stroke-width="1.5" marker-end="url(#a)"/>
+        <path d="M210,356 C255,356 262,326 298,321" fill="none" stroke="#9a8a68" stroke-width="1.5" marker-end="url(#a)"/>
+        <path d="M460,312 L497,312" fill="none" stroke="#9a8a68" stroke-width="1.5" marker-end="url(#a)"/>
+        <path d="M240,118 C520,24 950,24 1150,286" fill="none" stroke="#9a8a68" stroke-width="1.5" marker-end="url(#a)"/>
+        <path d="M1240,202 L1240,268" fill="none" stroke="#9a8a68" stroke-width="1.5" marker-end="url(#a)"/>
+        <path d="M1240,390 L1240,328" fill="none" stroke="#9a8a68" stroke-width="1.5" marker-end="url(#a)"/>
+        <!-- engine (red) -->
+        <path d="M1205,400 C1070,400 1000,179 905,179" fill="none" stroke="#AF382C" stroke-width="2.5" marker-end="url(#r)"/>
+        <path d="M905,179 L905,552" fill="none" stroke="#AF382C" stroke-width="2.5"/>
+        <path d="M905,552 L905,569" fill="none" stroke="#AF382C" stroke-width="2.5" marker-end="url(#r)"/>
+        <g><circle cx="1205" cy="400" r="13" fill="#AF382C"/><text x="1205" y="404.5" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">1</text></g>
+        <g><circle cx="905" cy="179" r="13" fill="#AF382C"/><text x="905" y="183.5" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">2</text></g>
+        <g><circle cx="905" cy="251" r="13" fill="#AF382C"/><text x="905" y="255.5" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">3</text></g>
+        <!-- labels -->
+        <text class="lbl" x="252" y="258" text-anchor="middle">operate</text>
+        <text class="lbl" x="252" y="372" text-anchor="middle">operate</text>
+        <text class="lbl" x="695" y="40" text-anchor="middle">lends to</text>
+        <text class="lbl" x="1248" y="240" text-anchor="start">sponsors</text>
+        <text class="lbl" x="1248" y="362" text-anchor="start">audits</text>
+        <text class="elbl" x="1090" y="322" text-anchor="middle">auditor change</text>
+        <text class="elbl" x="924" y="176" text-anchor="start">procedure fires</text>
+        <text class="elbl" x="924" y="255" text-anchor="start">supersede &#8594; recompute</text>
+        <text class="elbl" x="924" y="470" text-anchor="start">&#8594; retro-breach</text>
+        <text class="zonel" x="150" y="80" text-anchor="middle">THE LENDER</text>
+        <text class="zonel" x="1240" y="118" text-anchor="middle">THE BORROWER</text>
+      </svg></div>
+
+      <div class="outcomestrip">
+        <div class="big"><span class="g">5.90&times; COMPLIANT</span> <span class="a">&rarr;</span> <span class="b">6.86&times; RETRO-BREACH</span></div>
+        <div class="osub">The engine: the auditor change trips Enid's memory, it recomputes Q2 on the restated EBITDA, and a signed-off quarter becomes a breach.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <h2>The cast</h2>
+    <p class="lede plain">The actors as first-class citizens &mdash; each with a role and one move in the story above.</p>
+    <div class="cast">
+      <div class="castcard"><span class="av desk">J</span><div><div class="cc-role">Credit officer · the desk</div><div class="cc-name">Officer Jane</div><div class="cc-does">Records the deal &mdash; ingests the agreement &amp; Q2 cert, and teaches the auditor-change playbook.</div></div></div>
+      <div class="castcard"><span class="av desk">B</span><div><div class="cc-role">Credit officer · the desk</div><div class="cc-name">Officer Bob</div><div class="cc-does">Inherits the deal through shared memory &mdash; reads what Jane recorded without re-learning it.</div></div></div>
+      <div class="castcard"><span class="av sys">E</span><div><div class="cc-role">The agent</div><div class="cc-name">Enid</div><div class="cc-does">The protagonist &mdash; reads &amp; writes memory, runs the playbook, recomputes leverage, flags the breach.</div></div></div>
+      <div class="castcard"><span class="av sys">X</span><div><div class="cc-role">The memory</div><div class="cc-name">XTrace</div><div class="cc-does">The brain &mdash; stores facts, episodes, artifacts &amp; procedures; supersedes the restated number; answers recall &amp; trigger.</div></div></div>
+      <div class="castcard"><span class="av deal">N</span><div><div class="cc-role">The borrower</div><div class="cc-name">Northwind Aggregates</div><div class="cc-does">The company under the loan &mdash; files the quarterly compliance certificates.</div></div></div>
+      <div class="castcard"><span class="av deal">A</span><div><div class="cc-role">Halloran &rarr; Brandt</div><div class="cc-name">The Auditor</div><div class="cc-does">The borrower's accountants &mdash; the switch from Halloran to Brandt is the tripwire signal.</div></div></div>
+      <div class="castcard"><span class="av desk">BC</span><div><div class="cc-role">The lender / fund</div><div class="cc-name">Blackford Credit</div><div class="cc-does">Holds the loan and sets the covenants &mdash; the fund Enid and the officers serve, and where Northwind files its certs.</div></div></div>
+      <div class="castcard"><span class="av deal">M</span><div><div class="cc-role">The sponsor</div><div class="cc-name">Meridian Equity</div><div class="cc-does">Owns Northwind; funds the equity cures behind the capacity-ledger fallback beat.</div></div></div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <h2>1 &middot; The use case</h2>
+    <p class="lede plain">Enid watches the Northwind loan. In Q3, the auditor changes and a footnote quietly restates Q2's EBITDA down. The Q3 certificate still reads green. The question: does the agent notice that Q2 &mdash; already signed off &mdash; is now a breach?</p>
+    <div class="vs">
+      <div class="vscol blind">
+        <div class="vt">A memoryless watcher sees</div>
+        <p>Only the Q3 certificate in front of it: leverage <span class="num">6.36&times;</span>, ICR <span class="num">2.02&times;</span> &mdash; both pass. <span class="verdict">Reports "all clear."</span></p>
+      </div>
+      <div class="vscol mem">
+        <div class="vt">Memory should catch</div>
+        <p>That Q2 was tested at <span class="num">5.90&times;</span> on <span class="num">$50.0M</span> EBITDA; applying the restated <span class="num">$43.0M</span> gives <span class="num">6.86&times;</span>. <span class="verdict">Retroactive breach.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <h2>2 &middot; The props are ready</h2>
+    <p class="lede plain">Four synthetic documents (all watermarked SYNTHETIC), each carrying something the test needs. These get swapped for Enid's real doc when it lands.</p>
+    <div class="props">
+      <div class="prop">
+        <div class="ph"><span class="chk">&#10003;</span><span class="pn">Credit Agreement</span></div>
+        <div class="pd">The <span class="m">6.50&times;</span> leverage covenant, the EBITDA definition (25% synergy cap), equity-cure rights. &rarr; an <b>artifact</b> + covenant <b>facts</b>.</div>
+      </div>
+      <div class="prop">
+        <div class="ph"><span class="chk">&#10003;</span><span class="pn">First Amendment</span></div>
+        <div class="pd">Cuts the synergy cap <span class="m">25% &rarr; 15%</span> + requires auditor attestation. &rarr; the reason the add-backs get disallowed.</div>
+      </div>
+      <div class="prop">
+        <div class="ph"><span class="chk">&#10003;</span><span class="pn">Q2 Cert &middot; Halloran</span></div>
+        <div class="pd">EBITDA <span class="m">$50.0M</span> (incl. $7.0M synergies), <span class="m">5.90&times;</span> COMPLIANT. &rarr; the "signed-off" baseline.</div>
+      </div>
+      <div class="prop">
+        <div class="ph"><span class="chk">&#10003;</span><span class="pn">Q3 Cert &middot; Brandt</span></div>
+        <div class="pd">Auditor change; buries the Q2 restatement <span class="m">$50&rarr;$43M</span>; green on its face. &rarr; the tripwire signal + restated value.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <h2>3 &middot; How it all fits &mdash; the worked example</h2>
+    <p class="lede plain">Every step is one action and the exact result we expect back. Green = we've already proven this mechanism works in earlier live tests; amber = expected, this run confirms it.</p>
+
+    <div class="phaseh">Phase A &middot; Pre-warm (cached ahead &mdash; extraction is ~18s, too slow for the stage)</div>
+    <div class="steps">
+      <div class="step warm">
+        <div class="stop"><span class="bn">A1</span><span class="act">Ingest the credit agreement (as officer-jane, tagged to the deal-team group) + the canonical fact "Northwind's total net leverage covenant is 6.50&times;."</span></div>
+        <div class="exp"><span class="arw">&rarr;</span> Expect: an <b>artifact</b> for the agreement, <b>facts</b> for the covenants, an <b>episode</b> for the session.</div>
+        <div class="tags"><span class="beatp">setup</span><span class="tt artifact">artifact</span><span class="tt fact">fact</span><span class="tt episode">episode</span><span class="cf verify">artifact = to verify</span></div>
+      </div>
+      <div class="step warm">
+        <div class="stop"><span class="bn">A2</span><span class="act">Ingest the Q2 cert + the canonical fact "Northwind's Q2 2025 Consolidated EBITDA is $50.0M."</span></div>
+        <div class="exp"><span class="arw">&rarr;</span> Expect: an <b>artifact</b> for the Q2 cert and an <span class="hl">active</span> fact <span class="hl">EBITDA = $50.0M</span>.</div>
+        <div class="tags"><span class="beatp">setup</span><span class="tt artifact">artifact</span><span class="tt fact">fact</span><span class="cf grounded">grounded</span></div>
+      </div>
+      <div class="step warm">
+        <div class="stop"><span class="bn">A3</span><span class="act">Ingest the playbook as a directive (agentic), naming exact identifiers: "Rule for the review_cert tool on Northwind Aggregates: when the auditor changes, re-examine prior-period synergy add-backs and recompute leverage on the disallowed basis."</span></div>
+        <div class="exp"><span class="arw">&rarr;</span> Expect: a <b>procedure</b> stored with trigger entities incl. <span class="hl">Northwind</span> · <span class="hl">auditor_change</span> · <span class="hl">review_cert</span> (reachable only via trigger).</div>
+        <div class="tags"><span class="beatp">setup</span><span class="tt proc">procedure</span><span class="cf grounded">grounded</span></div>
+      </div>
+    </div>
+
+    <div class="phaseh">Phase B &middot; The live run (what the judge sets off)</div>
+    <div class="steps">
+      <div class="step live">
+        <div class="stop"><span class="bn">B1</span><span class="act">The Q3 cert arrives with a changed auditor (Halloran &rarr; Brandt). Agent fires trigger({ action: { tool: "review_cert", args: { deal: "Northwind Aggregates", event: "auditor_change" } } }).</span></div>
+        <div class="exp"><span class="arw">&rarr;</span> Expect: the <b>playbook directive</b> comes back &mdash; "re-examine prior add-backs, recompute on the disallowed basis."</div>
+        <div class="tags"><span class="beatp">Beat 2 · tripwire</span><span class="tt proc">procedure</span><span class="cf grounded">grounded</span></div>
+      </div>
+      <div class="step live">
+        <div class="stop"><span class="bn">B2</span><span class="act">Following the playbook, ingest the restated Q2 EBITDA as the same canonical fact: "Northwind's Q2 2025 Consolidated EBITDA is $43.0M."</span></div>
+        <div class="exp"><span class="arw">&rarr;</span> Expect: the old <span class="hl">$50.0M</span> fact &rarr; <b>superseded</b>; the new <span class="hl">$43.0M</span> &rarr; <b>active</b>, supersedes &rarr; old; <span class="hl">/revisions</span> = a 2-node chain.</div>
+        <div class="tags"><span class="beatp">Beat 3 · supersession</span><span class="tt fact">fact</span><span class="cf grounded">grounded</span></div>
+      </div>
+      <div class="step live">
+        <div class="stop"><span class="bn">B3</span><span class="act">Recompute Q2 leverage from the recalled facts (agent math, not XTrace): Net Debt $295M &divide; restated EBITDA $43.0M.</span></div>
+        <div class="exp"><span class="arw">&rarr;</span> Expect: <span class="hl">6.86&times;</span> vs the <span class="hl">6.50&times;</span> covenant &rarr; <b>RETROACTIVE BREACH</b> on a quarter marked compliant.</div>
+        <div class="tags"><span class="beatp">the payoff</span><span class="cf calc">deterministic math</span></div>
+      </div>
+      <div class="step live">
+        <div class="stop"><span class="bn">B4</span><span class="act">Ask the same question with memory on vs cold: recall("Northwind Q2 leverage covenant — current status?").</span></div>
+        <div class="exp"><span class="arw">&rarr;</span> Expect: <b>with memory</b>, it surfaces the covenant + restated EBITDA (+ /revisions before/after) and flags the breach; <b>cold</b>, it only sees the green Q3 cert and says "all clear."</div>
+        <div class="tags"><span class="beatp">Beat 4 · kill switch</span><span class="tt fact">recall</span><span class="cf grounded">grounded</span></div>
+      </div>
+      <div class="step live">
+        <div class="stop"><span class="bn">B5</span><span class="act">Read as officer-bob, scoped to the deal-team group (bob never ingested anything).</span></div>
+        <div class="exp"><span class="arw">&rarr;</span> Expect: bob retrieves the Northwind covenant that officer-jane recorded &mdash; memory outlives the individual.</div>
+        <div class="tags"><span class="beatp">Beat 1 · handoff</span><span class="tt fact">groups</span><span class="cf grounded">grounded</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <h2>4 &middot; The outcome we expect</h2>
+    <div class="outcome">
+      <div class="flip">
+        <div class="vbox ok"><div class="lv" style="color:var(--good-ink)">5.90&times;</div><div class="lb">Q2 &middot; Compliant</div><div class="cx">$295M / $50.0M &middot; as signed</div></div>
+        <div class="fa">&rarr;<small>restate EBITDA<br>$50.0M &rarr; $43.0M</small></div>
+        <div class="vbox no"><div class="lv" style="color:var(--bad-ink)">6.86&times;</div><div class="lb">Q2 &middot; Retro-breach</div><div class="cx">$295M / $43.0M &middot; from memory</div></div>
+      </div>
+      <p class="oc"><b>And the contrast that proves memory is load-bearing:</b> the Q3 certificate reads <b style="color:var(--good-ink)">green</b> (6.36&times; / 2.02&times;). A memoryless agent stops there. Only the agent that <b>remembered Q2</b> and re-applied the restated number catches the breach the paper never recomputed. Unplug memory and the red cell disappears.</p>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <h2>5 &middot; What "meets our requirements" means</h2>
+    <p class="lede plain">These are the assertions the harness checks. Empty box = the run confirms it. If all pass, the requirement is met.</p>
+    <div class="crit">
+      <div class="cr"><span class="box">&#9744;</span><span class="ct"><b>Artifacts form</b> from the documents (agreement + certs appear as artifact-type memories)</span><span class="cf cf2 verify">to verify</span></div>
+      <div class="cr"><span class="box">&#9744;</span><span class="ct"><b>Supersede chain forms:</b> Q2 EBITDA $50.0M &rarr; superseded, $43.0M &rarr; active + pointer, /revisions = 2 nodes</span><span class="cf cf2 grounded">grounded</span></div>
+      <div class="cr"><span class="box">&#9744;</span><span class="ct"><b>Trigger fires</b> on <span class="num">auditor_change</span> and returns the playbook directive</span><span class="cf cf2 grounded">grounded</span></div>
+      <div class="cr"><span class="box">&#9744;</span><span class="ct"><b>Recompute</b> yields <span class="num">6.86&times;</span> &rarr; breach of the 6.50&times; covenant</span><span class="cf cf2 calc">math</span></div>
+      <div class="cr"><span class="box">&#9744;</span><span class="ct"><b>Memory on/off splits:</b> recall-with flags the retro-breach; cold misses it</span><span class="cf cf2 grounded">grounded</span></div>
+      <div class="cr"><span class="box">&#9744;</span><span class="ct"><b>Handoff works:</b> officer-bob reads the covenant he never ingested</span><span class="cf cf2 grounded">grounded</span></div>
+      <div class="cr"><span class="box">&#9744;</span><span class="ct"><b>All pre-warmed:</b> no live ~18s extraction on stage</span><span class="cf cf2 calc">operational</span></div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <h2>6 &middot; The harness</h2>
+    <div class="callout">
+      <p>A single script runs <b>Phase A</b> (pre-warm: A1&ndash;A3) then <b>Phase B</b> (B1&ndash;B5), and after each step asserts the expected result &mdash; printing <span class="num">&#10003; PASS</span> / <span class="num">&#10007; FAIL</span> against the checklist above. It reuses the same XTrace client and the proven phrasings from the fixtures' README.</p>
+      <p><b>Nothing runs until you sign off on this page.</b> Then we execute, and compare the real output to the outcome predicted here &mdash; step by step.</p>
+    </div>
+    <div class="legend">
+      <span class="cf grounded">grounded</span> proven in earlier live tests this session
+      <span class="cf verify">to verify</span> expected &mdash; this run confirms it
+      <span class="cf calc">math / op</span> deterministic or operational
+    </div>
+  </section>
+
+</div>

@@ -1,0 +1,300 @@
+<title>Deal Memory — the relationship map</title>
+<style>
+  :root {
+    --paper: #F3F2ED; --panel: #FBFAF6; --panel-2: #ECE9E0;
+    --ink: #17191F; --ink-soft: #3B404A; --muted: #6C7180; --rule: #E1DDD2; --rule-2: #CFC9BC;
+    --accent: #A9741B; --accent-ink: #8A5E12; --accent-tint: #F1E6CF;
+    --good: #2C7A57; --good-ink: #256B4B; --bad: #AF382C; --bad-tint: #F1DAD5; --bad-ink: #97301F;
+    --t-fact: #3E6DA6; --t-episode: #7A5AA6; --t-artifact: #A9741B; --t-proc: #2E8B7A;
+    --shadow: 0 1px 2px rgba(20,18,12,.05), 0 8px 24px rgba(20,18,12,.06);
+    --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0F1216; --panel: #161A20; --panel-2: #1E232B;
+      --ink: #ECE9E1; --ink-soft: #C3C0B7; --muted: #878C97; --rule: #272C34; --rule-2: #39404A;
+      --accent: #E0A63A; --accent-ink: #EBB856; --accent-tint: #2A2213;
+      --good: #4FB07E; --good-ink: #6EC498; --bad: #E26B57; --bad-tint: #2C1815; --bad-ink: #EC8873;
+      --t-fact: #5B8DD6; --t-episode: #9E7FD1; --t-artifact: #D69A3A; --t-proc: #56B3A0;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #F3F2ED; --panel: #FBFAF6; --panel-2: #ECE9E0; --ink: #17191F; --ink-soft: #3B404A;
+    --muted: #6C7180; --rule: #E1DDD2; --rule-2: #CFC9BC; --accent: #A9741B; --accent-ink: #8A5E12; --accent-tint: #F1E6CF;
+    --good: #2C7A57; --good-ink: #256B4B; --bad: #AF382C; --bad-tint: #F1DAD5; --bad-ink: #97301F;
+    --t-fact: #3E6DA6; --t-episode: #7A5AA6; --t-artifact: #A9741B; --t-proc: #2E8B7A;
+    --shadow: 0 1px 2px rgba(20,18,12,.05), 0 8px 24px rgba(20,18,12,.06);
+  }
+  :root[data-theme="dark"] {
+    --paper: #0F1216; --panel: #161A20; --panel-2: #1E232B; --ink: #ECE9E1; --ink-soft: #C3C0B7;
+    --muted: #878C97; --rule: #272C34; --rule-2: #39404A; --accent: #E0A63A; --accent-ink: #EBB856; --accent-tint: #2A2213;
+    --good: #4FB07E; --good-ink: #6EC498; --bad: #E26B57; --bad-tint: #2C1815; --bad-ink: #EC8873;
+    --t-fact: #5B8DD6; --t-episode: #9E7FD1; --t-artifact: #D69A3A; --t-proc: #56B3A0;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink-soft); font-family: var(--sans); line-height: 1.55; -webkit-font-smoothing: antialiased; font-size: 16px; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: clamp(24px,5vw,60px) clamp(18px,4vw,40px) 90px; }
+  .eyebrow { font-size: 12px; font-weight: 650; letter-spacing: .13em; text-transform: uppercase; color: var(--accent-ink); margin: 0 0 12px; }
+  h1 { font-family: var(--serif); font-weight: 640; color: var(--ink); font-size: clamp(30px,5.2vw,46px); line-height: 1.04; letter-spacing: -.015em; margin: 0 0 14px; text-wrap: balance; }
+  .dek { font-size: clamp(16px,2.2vw,19px); color: var(--ink-soft); max-width: 62ch; margin: 0; text-wrap: pretty; }
+  h2 { font-family: var(--serif); font-weight: 620; color: var(--ink); font-size: clamp(21px,3.2vw,28px); letter-spacing: -.01em; margin: 0 0 4px; text-wrap: balance; }
+  section { margin-top: clamp(40px,6.5vw,64px); }
+  .lede { font-size: 17.5px; color: var(--ink); margin: 0 0 8px; max-width: 64ch; }
+  .lede.plain::before { content: "In plain English"; display: block; font-family: var(--sans); font-size: 11px; font-weight: 650; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .num, code { font-family: var(--mono); }
+  b { color: var(--ink); font-weight: 600; }
+
+  .legendbar { display: flex; flex-wrap: wrap; gap: 16px; margin: 22px 0 6px; font-size: 13.5px; align-items: center; }
+  .lg { display: inline-flex; align-items: center; gap: 7px; color: var(--ink-soft); }
+  .sw { width: 12px; height: 12px; border-radius: 3px; }
+  .sw.f { background: var(--t-fact); } .sw.e { background: var(--t-episode); } .sw.a { background: var(--t-artifact); } .sw.r { background: var(--accent); }
+
+  /* graph */
+  .scroll { overflow-x: auto; padding: 8px 4px 4px; }
+  .graph { min-width: 460px; display: flex; flex-direction: column; align-items: center; }
+  .node { background: var(--panel); border: 1px solid var(--rule-2); border-radius: 12px; padding: 12px 20px; box-shadow: var(--shadow); text-align: center; position: relative; }
+  .node .nt { font-family: var(--serif); font-size: 17px; color: var(--ink); font-weight: 620; line-height: 1.1; }
+  .node .nk { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-top: 3px; letter-spacing: .01em; }
+  .node.root { border-color: var(--accent); border-width: 1.5px; background: var(--accent-tint); }
+  .node.mem { border-top-width: 3px; }
+  .node.fact { border-top-color: var(--t-fact); } .node.episode { border-top-color: var(--t-episode); } .node.artifact { border-top-color: var(--t-artifact); }
+
+  .conn { height: 40px; position: relative; width: 2px; }
+  .conn::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--rule-2); }
+  .conn .lbl { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-family: var(--mono); font-size: 11px; color: var(--muted); background: var(--paper); padding: 1px 5px; white-space: nowrap; border-radius: 4px; }
+
+  .children { display: grid; grid-template-columns: repeat(3, minmax(130px,1fr)); gap: 18px; position: relative; padding-top: 30px; width: 100%; max-width: 620px; }
+  .children::before { content: ""; position: absolute; top: 0; left: 15%; right: 15%; height: 2px; background: var(--rule-2); }
+  .child { position: relative; display: flex; flex-direction: column; align-items: center; gap: 9px; }
+  .child::before { content: ""; position: absolute; top: -30px; left: 50%; width: 2px; height: 30px; background: var(--rule-2); transform: translateX(-1px); }
+  .edge { font-size: 12px; color: var(--ink-soft); text-align: center; background: var(--panel-2); border-radius: 7px; padding: 6px 10px; line-height: 1.3; }
+  .edge b { color: var(--ink); }
+  .selfnote { margin-top: 8px; font-family: var(--mono); font-size: 11px; color: var(--accent-ink); }
+
+  .idcap { margin-top: 22px; font-size: 14px; color: var(--muted); text-align: center; max-width: 60ch; }
+  .idcap b { color: var(--ink); }
+
+  /* relationship table */
+  .tablewrap { overflow-x: auto; background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; box-shadow: var(--shadow); }
+  table.rel { width: 100%; border-collapse: collapse; font-size: 14.5px; min-width: 560px; }
+  table.rel th { text-align: left; font-family: var(--sans); font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); font-weight: 650; padding: 12px 14px; border-bottom: 1px solid var(--rule); }
+  table.rel td { padding: 11px 14px; border-top: 1px solid var(--rule); vertical-align: top; }
+  table.rel .er { font-family: var(--mono); font-size: 12.5px; color: var(--ink); white-space: nowrap; }
+  table.rel .er .arrow { color: var(--accent); }
+  table.rel .fld code { font-family: var(--mono); font-size: 12px; color: var(--accent-ink); }
+
+  /* concrete instance */
+  .inst { overflow-x: auto; }
+  .chain { display: flex; align-items: stretch; gap: 0; min-width: 640px; }
+  .cc { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 16px; box-shadow: var(--shadow); flex: 1; }
+  .cc .ct { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .mchip { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 7px 10px; border-radius: 8px; background: var(--panel-2); margin-top: 7px; }
+  .mchip .d { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .mchip .d.f { background: var(--t-fact); } .mchip .d.e { background: var(--t-episode); }
+  .mchip.ghost { opacity: .55; border: 1px dashed var(--bad); background: transparent; }
+  .mchip.ghost .d.f { background: var(--bad); }
+  .mchip .who { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-left: auto; }
+  .between { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 14px; min-width: 120px; }
+  .between .arr { font-size: 22px; color: var(--accent); line-height: 1; }
+  .between .lbl { font-family: var(--mono); font-size: 11px; color: var(--accent-ink); text-align: center; margin-top: 4px; }
+  .between .gone { font-size: 10.5px; color: var(--bad-ink); margin-top: 2px; }
+
+  .callout { background: var(--panel); border: 1px solid var(--rule); border-left: 4px solid var(--accent); border-radius: 10px; padding: 14px 18px; box-shadow: var(--shadow); }
+  .callout .ct { font-family: var(--serif); font-size: 16px; color: var(--ink); font-weight: 620; margin: 0 0 3px; }
+  .callout p { margin: 0; font-size: 14.5px; color: var(--ink-soft); max-width: 76ch; }
+
+  /* memory-type cards */
+  .types { display: grid; grid-template-columns: repeat(auto-fit, minmax(228px,1fr)); gap: 14px; margin-top: 20px; }
+  .tcard { background: var(--panel); border: 1px solid var(--rule); border-top-width: 3px; border-radius: 12px; padding: 16px 17px; box-shadow: var(--shadow); }
+  .tcard.fact { border-top-color: var(--t-fact); } .tcard.episode { border-top-color: var(--t-episode); }
+  .tcard.artifact { border-top-color: var(--t-artifact); } .tcard.proc { border-top-color: var(--t-proc); }
+  .tcard .th { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .tcard .tdot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .tcard.fact .tdot { background: var(--t-fact); } .tcard.episode .tdot { background: var(--t-episode); }
+  .tcard.artifact .tdot { background: var(--t-artifact); } .tcard.proc .tdot { background: var(--t-proc); }
+  .tcard .tname { font-family: var(--serif); font-size: 18px; color: var(--ink); font-weight: 630; line-height: 1; }
+  .tcard .tapi { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-top: 3px; }
+  .tcard .tapi code { color: var(--accent-ink); }
+  .tcard .trow { font-size: 13.5px; color: var(--ink-soft); padding: 6px 0; border-top: 1px solid var(--rule); }
+  .tcard .trow:first-of-type { border-top: 0; }
+  .tcard .tk { display: block; font-size: 10px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 1px; }
+  .tcard .tuse { margin-top: 11px; font-size: 12px; font-weight: 600; padding: 7px 10px; border-radius: 7px; text-align: center; }
+  .tcard .tuse.ok { background: var(--good-tint); color: var(--good-ink); }
+  .tcard .tuse.warn { background: var(--bad-tint); color: var(--bad-ink); }
+  .tcard .tuse.side { background: var(--accent-tint); color: var(--accent-ink); }
+  .note { font-size: 13.5px; color: var(--muted); margin-top: 14px; max-width: 70ch; }
+  .note b { color: var(--ink); }
+
+  .doors { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 18px; }
+  @media (max-width: 600px){ .doors { grid-template-columns: 1fr; } }
+  .door { background: var(--panel); border: 1px solid var(--rule); border-radius: 14px; padding: 18px 20px; box-shadow: var(--shadow); }
+  .door .dh { font-family: var(--serif); font-size: 18px; color: var(--ink); font-weight: 620; }
+  .door .dsub { font-size: 13px; color: var(--muted); margin: 3px 0 14px; }
+  .door .dtypes { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .tt { font-family: var(--mono); font-size: 12px; font-weight: 650; padding: 4px 10px; border-radius: 6px; border: 1.5px solid; background: transparent; }
+  .tt.fact { color: var(--t-fact); border-color: var(--t-fact); } .tt.episode { color: var(--t-episode); border-color: var(--t-episode); }
+  .tt.artifact { color: var(--t-artifact); border-color: var(--t-artifact); } .tt.proc { color: var(--t-proc); border-color: var(--t-proc); }
+  .door .dnote { font-size: 13px; color: var(--ink-soft); border-top: 1px solid var(--rule); padding-top: 10px; }
+  .door .dnote b { color: var(--ink); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal { opacity: 0; transform: translateY(10px); animation: rise .55s cubic-bezier(.2,.7,.3,1) forwards; }
+    @keyframes rise { to { opacity: 1; transform: none; } }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="reveal">
+    <p class="eyebrow">Deal Memory &middot; The Relationship Map</p>
+    <h1>How the memories connect</h1>
+    <p class="dek">The corpus isn't a flat list &mdash; it's a graph. Six kinds of thing, joined by a handful of named relationships. This is the shape, then the real edges from your data.</p>
+  </header>
+
+  <section class="reveal">
+    <h2>The entity map</h2>
+    <p class="lede plain">Read it top-down: a <b>deal</b> holds <b>conversations</b>, each conversation is made of <b>turns</b> (messages), and extraction turns those messages into three kinds of memory &mdash; a <b>fact</b>, an <b>episode</b>, sometimes an <b>artifact</b>.</p>
+    <div class="legendbar">
+      <span class="lg"><span class="sw f"></span> Fact</span>
+      <span class="lg"><span class="sw e"></span> Episode</span>
+      <span class="lg"><span class="sw a"></span> Artifact</span>
+    </div>
+    <div class="scroll">
+      <div class="graph">
+        <div class="node root"><div class="nt">Deal</div><div class="nk">user_id &middot; the namespace / "brain"</div></div>
+        <div class="conn"><span class="lbl">holds</span></div>
+        <div class="node"><div class="nt">Conversation</div><div class="nk">conv_id &middot; one session</div></div>
+        <div class="conn"><span class="lbl">is made of</span></div>
+        <div class="node"><div class="nt">Turn</div><div class="nk">one message &middot; role user / assistant</div></div>
+        <div class="conn"><span class="lbl">extracted into</span></div>
+        <div class="children">
+          <div class="child">
+            <div class="node mem fact"><div class="nt">Fact</div><div class="nk">one true statement</div></div>
+            <div class="edge">a correction <b>supersedes</b> an older fact</div>
+            <div class="selfnote">Fact &rarr; Fact</div>
+          </div>
+          <div class="child">
+            <div class="node mem episode"><div class="nt">Episode</div><div class="nk">the session's story</div></div>
+            <div class="edge"><b>groups</b> the facts it produced</div>
+            <div class="selfnote">Episode &rarr; Fact</div>
+          </div>
+          <div class="child">
+            <div class="node mem artifact"><div class="nt">Artifact</div><div class="nk">a document</div></div>
+            <div class="edge"><b>built from</b> facts</div>
+            <div class="selfnote">Artifact &rarr; Fact</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="idcap">Cross-cutting both: every memory is stamped with <b>who wrote it</b> (<code>agent_id</code> &mdash; the officer) and <b>whose namespace</b> it lives in (<code>user_id</code> &mdash; the deal). That's the identity layer the audit story rides on.</p>
+  </section>
+
+  <section class="reveal">
+    <h2>The product's four memory types &mdash; and how we map them</h2>
+    <p class="lede plain">XTrace sorts everything it learns into four kinds of memory &mdash; the classic way of describing how an agent (or a person) remembers. Three of them are the nodes you just saw; the fourth works differently. Here's each, mapped to covenants, with an honest read on whether we're using it.</p>
+    <div class="types">
+      <div class="tcard fact">
+        <div class="th"><span class="tdot"></span><div><div class="tname">Semantic</div><div class="tapi">xtrace type: <code>fact</code></div></div></div>
+        <div class="trow"><span class="tk">The idea</span> a durable statement of what's true now</div>
+        <div class="trow"><span class="tk">In Deal Memory</span> "NRA-1's leverage covenant is 4.0&times;"</div>
+        <div class="trow"><span class="tk">Recalled by</span> semantic search / recall</div>
+        <div class="tuse ok">&#10003; Heavily used &middot; 27 in the export</div>
+      </div>
+      <div class="tcard episode">
+        <div class="th"><span class="tdot"></span><div><div class="tname">Episodic</div><div class="tapi">xtrace type: <code>episode</code></div></div></div>
+        <div class="trow"><span class="tk">The idea</span> "what happened when" &mdash; a bounded session</div>
+        <div class="trow"><span class="tk">In Deal Memory</span> each quarter's review, captured as a gist</div>
+        <div class="trow"><span class="tk">Recalled by</span> semantic search / recall</div>
+        <div class="tuse ok">&#10003; Used most &middot; 46 in the export</div>
+      </div>
+      <div class="tcard artifact">
+        <div class="th"><span class="tdot"></span><div><div class="tname">Resource</div><div class="tapi">xtrace type: <code>artifact</code></div></div></div>
+        <div class="trow"><span class="tk">The idea</span> a versioned document or output</div>
+        <div class="trow"><span class="tk">In Deal Memory</span> the compliance cert, the credit agreement</div>
+        <div class="trow"><span class="tk">Recalled by</span> search (+ opt-in full content)</div>
+        <div class="tuse warn">&#9888; Underused &middot; only 1 &mdash; an opportunity</div>
+      </div>
+      <div class="tcard proc">
+        <div class="th"><span class="tdot"></span><div><div class="tname">Procedural</div><div class="tapi">xtrace type: <code>lesson</code> + <code>procedure</code></div></div></div>
+        <div class="trow"><span class="tk">The idea</span> a learned rule that fires when relevant</div>
+        <div class="trow"><span class="tk">In Deal Memory</span> "when the auditor changes, run this playbook"</div>
+        <div class="trow"><span class="tk">Recalled by</span> the <b>trigger</b> tripwire &mdash; not search</div>
+        <div class="tuse side">&#8226; In use, but off-map &mdash; trigger-only</div>
+      </div>
+    </div>
+    <p class="note"><b>lesson</b> and <b>procedure</b> are two flavors of the same procedural type &mdash; a lesson is a learned insight, a procedure is ordered steps.</p>
+  </section>
+
+  <section class="reveal">
+    <h2>Two doors into memory &mdash; why one type is missing from the map</h2>
+    <p class="lede plain">This is the piece that's easy to miss, and it answers your question directly: memory doesn't come back one way. Three types answer to <b>search</b>; the procedural type answers only to the <b>trigger</b> tripwire. That's exactly why procedures never appeared in the entity map or the export &mdash; they live behind a different door.</p>
+    <div class="doors">
+      <div class="door">
+        <div class="dh">Door 1 &middot; Search &amp; Recall</div>
+        <div class="dsub">"what's relevant to this question?" &mdash; by meaning</div>
+        <div class="dtypes"><span class="tt fact">Fact</span><span class="tt episode">Episode</span><span class="tt artifact">Artifact</span></div>
+        <div class="dnote">Shows up in list, search, recall &mdash; and the export.</div>
+      </div>
+      <div class="door">
+        <div class="dh">Door 2 &middot; Trigger</div>
+        <div class="dsub">"a rule fires the instant I touch its exact subject"</div>
+        <div class="dtypes"><span class="tt proc">Lesson</span><span class="tt proc">Procedure</span></div>
+        <div class="dnote">Recalled <b>only</b> via trigger. Never in list, search, or the export.</div>
+      </div>
+    </div>
+    <div class="callout" style="margin-top:16px"><p class="ct">So &mdash; are we using the types right?</p><p><b>Facts &amp; episodes:</b> yes, doing exactly their job. <b>Artifacts:</b> underused &mdash; ingest the cert and the credit agreement <em>as artifacts</em> (versioned documents) so the demo shows document lineage, not just loose facts. <b>Procedures:</b> working (exp4 proved it) &mdash; just remember they're a separate channel, so never expect them in the corpus view.</p></div>
+  </section>
+
+  <section class="reveal">
+    <h2>The relationships, named</h2>
+    <p class="lede plain">Each edge in the map is a real link in the data &mdash; here's what it means and the field that encodes it.</p>
+    <div class="tablewrap" style="margin-top:18px">
+      <table class="rel">
+        <tr><th>Relationship</th><th>In plain English</th><th>Encoded by</th></tr>
+        <tr><td class="er">Deal <span class="arrow">&rarr;</span> Conversation</td><td>a deal's sessions live under one namespace</td><td class="fld"><code>user_id</code> &middot; <code>conv_id</code></td></tr>
+        <tr><td class="er">Conversation <span class="arrow">&rarr;</span> Turn</td><td>the messages that make up a session</td><td class="fld"><code>source_event_ids</code> &mdash; e.g. <code>audit-q2_0</code></td></tr>
+        <tr><td class="er">Turn <span class="arrow">&rarr;</span> Fact / Episode / Artifact</td><td>ingestion turns raw messages into memory</td><td class="fld">the extraction step</td></tr>
+        <tr><td class="er">Episode <span class="arrow">&rarr;</span> Fact</td><td>a session's story owns the facts it produced</td><td class="fld"><code>fact_ids</code> &nbsp;/&nbsp; <code>episode_id</code></td></tr>
+        <tr><td class="er">Fact <span class="arrow">&rarr;</span> Fact</td><td>a correction retires an older fact</td><td class="fld"><code>supersedes</code></td></tr>
+        <tr><td class="er">Artifact <span class="arrow">&rarr;</span> Fact</td><td>a document assembled from facts</td><td class="fld"><code>source_fact_ids</code></td></tr>
+        <tr><td class="er">Officer + Deal <span class="arrow">&rarr;</span> memory</td><td>who wrote it, and in whose namespace</td><td class="fld"><code>agent_id</code> &middot; <code>user_id</code></td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <h2>A real thread from your data</h2>
+    <p class="lede plain">The <code>deal-audit</code> covenant, exactly as the export holds it: two sessions, two facts, one supersede link &mdash; and the earlier value already gone.</p>
+    <div class="inst" style="margin-top:18px">
+      <div class="chain">
+        <div class="cc">
+          <div class="ct">conversation &middot; audit-q1</div>
+          <div class="mchip"><span class="d e"></span> Episode &mdash; session gist</div>
+          <div class="mchip ghost"><span class="d f"></span> Fact &mdash; leverage 3.5&times; <span class="who">Jane</span></div>
+        </div>
+        <div class="between">
+          <div class="arr">&larr;</div>
+          <div class="lbl">supersedes</div>
+          <div class="gone">3.5&times; not in export</div>
+        </div>
+        <div class="cc">
+          <div class="ct">conversation &middot; audit-q2</div>
+          <div class="mchip"><span class="d e"></span> Episode &mdash; session gist</div>
+          <div class="mchip"><span class="d f"></span> Fact &mdash; leverage 4.0&times; <span class="who">Bob</span></div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:14px;color:var(--muted);margin-top:14px">Bob's <span class="num">4.0&times;</span> fact carries a <code>supersedes</code> pointer to Jane's <span class="num">3.5&times;</span> &mdash; but that node is dashed because it's <b>absent from the export</b>. The edge survives; the thing it points to doesn't.</p>
+  </section>
+
+  <section class="reveal">
+    <h2>What the shape tells you</h2>
+    <div class="callout"><p class="ct">Facts are the hubs</p><p>Everything points at facts &mdash; episodes group them, artifacts are built from them, and facts supersede each other. If you're wiring the demo or an audit trail, the fact and its <code>supersedes</code> edge are the load-bearing joints.</p></div>
+    <div class="callout" style="margin-top:10px"><p class="ct">The graph is directional and shallow</p><p>Two-way links are rare; most edges flow one way (deal &rarr; conversation &rarr; turn &rarr; memory). The one loop that matters &mdash; Fact superseding Fact &mdash; is the belief-revision spine, and it's the only edge that reaches backward in time.</p></div>
+  </section>
+
+</div>

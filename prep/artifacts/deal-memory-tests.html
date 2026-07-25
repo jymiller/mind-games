@@ -1,0 +1,237 @@
+<title>Deal Memory — de-risking harness</title>
+<style>
+  :root {
+    --paper: #F3F2ED; --panel: #FBFAF6; --panel-2: #ECE9E0;
+    --ink: #17191F; --ink-soft: #3B404A; --muted: #6C7180; --rule: #E1DDD2;
+    --accent: #A9741B; --accent-ink: #8A5E12; --accent-tint: #F1E6CF;
+    --good: #2C7A57; --good-tint: #DCEBE2; --good-ink: #256B4B;
+    --bad: #AF382C; --bad-tint: #F1DAD5; --bad-ink: #97301F;
+    --shadow: 0 1px 2px rgba(20,18,12,.05), 0 8px 24px rgba(20,18,12,.06);
+    --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0F1216; --panel: #161A20; --panel-2: #1E232B;
+      --ink: #ECE9E1; --ink-soft: #C3C0B7; --muted: #878C97; --rule: #272C34;
+      --accent: #E0A63A; --accent-ink: #EBB856; --accent-tint: #2A2213;
+      --good: #4FB07E; --good-tint: #16271E; --good-ink: #6EC498;
+      --bad: #E26B57; --bad-tint: #2C1815; --bad-ink: #EC8873;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #F3F2ED; --panel: #FBFAF6; --panel-2: #ECE9E0; --ink: #17191F; --ink-soft: #3B404A;
+    --muted: #6C7180; --rule: #E1DDD2; --accent: #A9741B; --accent-ink: #8A5E12; --accent-tint: #F1E6CF;
+    --good: #2C7A57; --good-tint: #DCEBE2; --good-ink: #256B4B; --bad: #AF382C; --bad-tint: #F1DAD5; --bad-ink: #97301F;
+    --shadow: 0 1px 2px rgba(20,18,12,.05), 0 8px 24px rgba(20,18,12,.06);
+  }
+  :root[data-theme="dark"] {
+    --paper: #0F1216; --panel: #161A20; --panel-2: #1E232B; --ink: #ECE9E1; --ink-soft: #C3C0B7;
+    --muted: #878C97; --rule: #272C34; --accent: #E0A63A; --accent-ink: #EBB856; --accent-tint: #2A2213;
+    --good: #4FB07E; --good-tint: #16271E; --good-ink: #6EC498; --bad: #E26B57; --bad-tint: #2C1815; --bad-ink: #EC8873;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink-soft); font-family: var(--sans); line-height: 1.55;
+    -webkit-font-smoothing: antialiased; font-size: 16px; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: clamp(24px,5vw,60px) clamp(18px,4vw,40px) 90px; }
+
+  .eyebrow { font-size: 12px; font-weight: 650; letter-spacing: .13em; text-transform: uppercase; color: var(--accent-ink); margin: 0 0 12px; }
+  h1 { font-family: var(--serif); font-weight: 640; color: var(--ink); font-size: clamp(30px,5.2vw,46px);
+    line-height: 1.04; letter-spacing: -.015em; margin: 0 0 14px; text-wrap: balance; }
+  .dek { font-size: clamp(16px,2.2vw,19px); color: var(--ink-soft); max-width: 62ch; margin: 0; text-wrap: pretty; }
+
+  h2 { font-family: var(--serif); font-weight: 620; color: var(--ink); font-size: clamp(20px,3vw,26px);
+    letter-spacing: -.01em; margin: 0 0 4px; }
+  .sub { font-size: 14.5px; color: var(--muted); margin: 0 0 20px; max-width: 60ch; }
+  section { margin-top: clamp(38px,6vw,60px); }
+
+  /* KPI scoreboard */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 12px; margin-top: 30px; }
+  .kpi { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow);
+    position: relative; overflow: hidden; }
+  .kpi::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent); }
+  .kpi.ok::before { background: var(--good); } .kpi.warn::before { background: var(--bad); }
+  .kpi .n { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 30px; font-weight: 700; color: var(--ink); line-height: 1; }
+  .kpi .n small { font-size: 16px; color: var(--muted); font-weight: 500; }
+  .kpi .l { font-size: 12.5px; color: var(--muted); margin-top: 7px; letter-spacing: .01em; }
+  .kpi.ok .n { color: var(--good-ink); } .kpi.warn .n { color: var(--bad-ink); }
+
+  /* status pills */
+  .pill { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+    letter-spacing: .04em; padding: 3px 8px; border-radius: 5px; text-transform: uppercase; white-space: nowrap; }
+  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
+  .pill.done { background: var(--good-tint); color: var(--good-ink); } .pill.done::before { background: var(--good); }
+  .pill.todo { background: var(--accent-tint); color: var(--accent-ink); } .pill.todo::before { background: var(--accent); }
+  .pill.crit { background: var(--bad-tint); color: var(--bad-ink); } .pill.crit::before { background: var(--bad); }
+
+  /* beat coverage grid */
+  .beats { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap: 12px; }
+  .beat { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 15px 16px 16px 20px;
+    box-shadow: var(--shadow); position: relative; }
+  .beat::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; border-radius: 5px 0 0 5px; }
+  .beat.g::before { background: var(--good); } .beat.o::before { background: var(--bad); } .beat.t::before { background: var(--accent); }
+  .beat .bk { font-family: var(--mono); font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+  .beat .bt { font-family: var(--serif); font-size: 18px; color: var(--ink); font-weight: 600; margin: 3px 0 8px; }
+  .beat .bg { font-size: 13px; color: var(--ink-soft); display: flex; align-items: center; gap: 6px; margin-bottom: 12px; }
+  .beat .bg code { font-family: var(--mono); font-size: 12px; color: var(--accent-ink); background: var(--panel-2); padding: 1px 5px; border-radius: 4px; }
+
+  /* experiment cards */
+  .exps { display: grid; gap: 12px; }
+  .exp { background: var(--panel); border: 1px solid var(--rule); border-radius: 13px; padding: 18px 20px 18px 22px;
+    box-shadow: var(--shadow); position: relative; overflow: hidden; }
+  .exp::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; }
+  .exp.g::before { background: var(--good); } .exp.o::before { background: var(--bad); } .exp.t::before { background: var(--accent); }
+  .exp .top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .exp .idx { font-family: var(--mono); font-weight: 700; font-size: 13px; color: var(--paper); background: var(--ink);
+    width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; flex-shrink: 0; }
+  .exp.g .idx { background: var(--good); } .exp.o .idx { background: var(--bad); }
+  .exp h3 { font-family: var(--serif); font-size: 18.5px; color: var(--ink); font-weight: 620; margin: 0; flex: 1 1 auto; min-width: 180px; }
+  .exp .pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap: 6px 24px; }
+  .kv { padding: 6px 0; border-top: 1px solid var(--rule); }
+  .kv .k { font-size: 11px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+  .kv .v { font-size: 14.5px; color: var(--ink-soft); }
+  .kv .v b { color: var(--ink); font-weight: 600; }
+  .kv .v .m { font-family: var(--mono); font-size: 13px; }
+  .result { margin-top: 10px; font-size: 14px; padding: 11px 14px; border-radius: 9px; }
+  .exp.g .result { background: var(--good-tint); color: var(--good-ink); }
+  .exp.o .result, .exp.t .result { background: var(--panel-2); color: var(--ink-soft); }
+  .result b { color: var(--ink); }
+
+  /* next-up rollup */
+  .rollup { background: var(--panel); border: 1px solid var(--rule); border-radius: 14px; padding: clamp(20px,3vw,28px); box-shadow: var(--shadow); }
+  .rollup ol { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; counter-reset: r; }
+  .rollup li { display: grid; grid-template-columns: 28px 1fr; gap: 13px; align-items: start; counter-increment: r; }
+  .rollup li::before { content: counter(r); font-family: var(--mono); font-weight: 700; font-size: 13px; color: var(--paper);
+    background: var(--accent); width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; }
+  .rollup li b { color: var(--ink); }
+  .rollup li .why { font-size: 13.5px; color: var(--muted); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 22px; font-size: 12.5px; color: var(--muted); align-items: center; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal { opacity: 0; transform: translateY(10px); animation: rise .55s cubic-bezier(.2,.7,.3,1) forwards; }
+    @keyframes rise { to { opacity: 1; transform: none; } }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="reveal">
+    <p class="eyebrow">Mind Games &middot; De-risking Harness</p>
+    <h1>The seven tests behind the demo</h1>
+    <p class="dek">Each experiment proves one demo beat works on the live API <em>before</em> Saturday, so nothing is discovered on stage. All seven are run &mdash; here's the final scoreboard and the recipes that carry into the build.</p>
+    <div class="kpis">
+      <div class="kpi ok"><div class="n">6<small> / 6</small></div><div class="l">Demo beats de-risked</div></div>
+      <div class="kpi ok"><div class="n">0</div><div class="l">Critical beats open</div></div>
+      <div class="kpi"><div class="n">~18<small>s</small></div><div class="l">Extraction latency &rarr; pre-warm everything</div></div>
+      <div class="kpi"><div class="n">30<small>/min</small></div><div class="l">Quota &middot; 10k ingest/mo &middot; headroom fine</div></div>
+    </div>
+  </header>
+
+  <section class="reveal">
+    <h2>Beat coverage at a glance</h2>
+    <p class="sub">The demo is four beats plus two infrastructure checks. Each is guarded by one experiment. Green = proven on the live API.</p>
+    <div class="beats">
+      <div class="beat g"><div class="bk">Beat 3 &middot; the payoff</div><div class="bt">Retroactive breach</div><div class="bg">guard <code>exp1</code></div><span class="pill done">Greenlit</span></div>
+      <div class="beat g"><div class="bk">Beat 2 &middot; the on-ramp</div><div class="bt">Auditor tripwire</div><div class="bg">guard <code>exp4</code></div><span class="pill done">Greenlit</span></div>
+      <div class="beat g"><div class="bk">Beat 1 &middot; the setup</div><div class="bt">Officer handoff</div><div class="bg">guard <code>exp3</code></div><span class="pill done">Pass</span></div>
+      <div class="beat g"><div class="bk">Beat 4 &middot; the proof</div><div class="bt">Memory kill switch</div><div class="bg">guard <code>exp5</code></div><span class="pill done">Pass</span></div>
+      <div class="beat g"><div class="bk">Infra</div><div class="bt">Pre-warm rule</div><div class="bg">guard <code>exp0</code></div><span class="pill done">Pass</span></div>
+      <div class="beat g"><div class="bk">Infra</div><div class="bt">Quota headroom</div><div class="bg">guard <code>exp6</code></div><span class="pill done">Confirmed</span></div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <h2>The seven experiments</h2>
+    <p class="sub">Each runs against the live XTrace API and prints a PASS / FAIL / INSPECT verdict. Order matters: infra first, then the critical beats.</p>
+    <div class="exps">
+
+      <article class="exp g">
+        <div class="top"><span class="idx">0</span><h3>Latency &amp; consistency</h3><div class="pills"><span class="pill done">Pass &middot; ran</span></div></div>
+        <div class="grid2">
+          <div class="kv"><div class="k">Protects</div><div class="v">Infra &middot; the pre-warm rule (no live ingest on stage)</div></div>
+          <div class="kv"><div class="k">Passes when</div><div class="v">post-extraction search <span class="m">&gt;0.9</span>; naive ingest-then-query misses</div></div>
+        </div>
+        <div class="result">Immediate search after ingest = <b>0 hits</b>; <span class="m">wait:true</span> extraction took <b>~18.3s</b> for one fact; post-extraction score <b>1.0</b>. &rarr; Every beat must read <b>pre-warmed</b> data.</div>
+      </article>
+
+      <article class="exp g">
+        <div class="top"><span class="idx">1</span><h3>Supersession</h3><div class="pills"><span class="pill done">Greenlit</span><span class="pill done">ran + probed</span></div></div>
+        <div class="grid2">
+          <div class="kv"><div class="k">Protects</div><div class="v"><b>Beat 3</b> &middot; retroactive breach (belief revision)</div></div>
+          <div class="kv"><div class="k">Passes when</div><div class="v">restatement &rarr; old <span class="m">superseded</span> + <span class="m">supersedes</span> pointer + walkable <span class="m">/revisions</span></div></div>
+        </div>
+        <div class="result">Failed out-of-box on amendment phrasing; a follow-up probe found the recipe: phrase the restatement as the <b>same canonical fact, new value</b> ("...is 4.0&times;"). Then old &rarr; <b>superseded</b>, new &rarr; <b>active + supersedes&rarr;old</b>, <span class="m">/revisions</span> returns the 2-node chain. <b>Recipe locked.</b></div>
+      </article>
+
+      <article class="exp t">
+        <div class="top"><span class="idx">2</span><h3>Retraction vs supersession</h3><div class="pills"><span class="pill todo">Won't auto-fire</span></div></div>
+        <div class="grid2">
+          <div class="kv"><div class="k">Protects</div><div class="v">The "why not Cognee / Graphiti" point &middot; a typed <span class="m">retracted</span></div></div>
+          <div class="kv"><div class="k">Result</div><div class="v">supersession fires; <span class="m">retracted</span> does <b>not</b></div></div>
+        </div>
+        <div class="result">Tested 3 phrasings (removed / retracted-in-error / terminated). None flipped the covenant to <span class="m">retracted</span> &mdash; a waiver-with-no-successor sits as a second active fact or is dropped. The status exists but extraction won't emit it. <b>Non-blocking:</b> it was never a demo beat &mdash; model a waiver in Enid's app state, or drop the typed-retraction talking point.</div>
+      </article>
+
+      <article class="exp g">
+        <div class="top"><span class="idx">3</span><h3>Officer handoff + personal-gate hazard</h3><div class="pills"><span class="pill done">Pass &middot; ran</span></div></div>
+        <div class="grid2">
+          <div class="kv"><div class="k">Protects</div><div class="v"><b>Beat 1</b> &middot; memory outlives the officer (a 2nd officer reads covenants he never ingested)</div></div>
+          <div class="kv"><div class="k">Passes when</div><div class="v">officer B retrieves via group scope, through a path that survives the gate</div></div>
+        </div>
+        <div class="result">The feared hazard <b>did not fire</b>: the covenant <b>kept its group tag</b> (<span class="m">ignored_group_ids: []</span>), and officer-bob &mdash; who never ingested it &mdash; pulled back <b>2 covenants</b> via group scope. Handoff works out of the box. <b>Watch:</b> re-confirm if a covenant is ever phrased as a user's <em>personal</em> finances.</div>
+      </article>
+
+      <article class="exp g">
+        <div class="top"><span class="idx">4</span><h3>Un-metered <span class="m" style="font-family:var(--mono);font-size:.8em">/trigger</span></h3><div class="pills"><span class="pill done">Greenlit</span><span class="pill done">ran + probed</span></div></div>
+        <div class="grid2">
+          <div class="kv"><div class="k">Protects</div><div class="v"><b>Beat 2</b> &middot; the auditor-switch tripwire &mdash; the spine's on-ramp</div></div>
+          <div class="kv"><div class="k">Passes when</div><div class="v">trigger returns the stored lesson via <b>exact-match</b>; metered counter unchanged</div></div>
+        </div>
+        <div class="result">Failed out-of-box, then greenlit by probe. The tripwire fires via exact-match on a directive's <span class="m">trigger_entities</span> &mdash; in <b>both</b> compose and retrieve modes. exp4 missed only because its lesson keyed on <span class="m">EBITDA_adj</span>, not the tool/lender the action carried. Recipe: name the exact identifiers the action passes ("Rule for the <span class="m">parse_lender_csv</span> tool on Lender&nbsp;X..."). Build note: fire on a stable token like <span class="m">auditor_change</span>, not the novel auditor name.</div>
+      </article>
+
+      <article class="exp g">
+        <div class="top"><span class="idx">5</span><h3>Memory on-vs-off toggle</h3><div class="pills"><span class="pill done">Pass &middot; ran</span></div></div>
+        <div class="grid2">
+          <div class="kv"><div class="k">Protects</div><div class="v"><b>Beat 4</b> &middot; the kill switch (the load-bearing proof)</div></div>
+          <div class="kv"><div class="k">Passes when</div><div class="v">answer is lineage-aware <b>with</b> memory, ignorant <b>without</b></div></div>
+        </div>
+        <div class="result"><span class="m">recall</span> produced an injectable context block carrying the covenant; the cold prompt is blank &mdash; the on/off contrast is real. <b>Build note:</b> also inject the <span class="m">/revisions</span> chain &mdash; superseded facts drop out of plain recall, so "3.5&times; before" needs the chain for the full lineage answer. The LLM call is the remaining build task.</div>
+      </article>
+
+      <article class="exp g">
+        <div class="top"><span class="idx">6</span><h3>Quota recon</h3><div class="pills"><span class="pill done">Confirmed</span></div></div>
+        <div class="grid2">
+          <div class="kv"><div class="k">Protects</div><div class="v">Infra &middot; no live 429 on demo day</div></div>
+          <div class="kv"><div class="k">Passes when</div><div class="v">known caps + headroom; every beat reads pre-warmed</div></div>
+        </div>
+        <div class="result">Confirmed earlier: <span class="m">30 req/min</span>, <span class="m">10,000</span> ingest/mo, <span class="m">5,000</span> searches/mo, resets month-end. Demo-day throttle risk <b>low</b> &mdash; still pre-warm.</div>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="reveal">
+    <h2>Testing complete &mdash; what carries into the build</h2>
+    <div class="rollup">
+      <p class="sub" style="margin:0 0 4px">All seven run. Every demo beat is proven on the live API &mdash; nothing critical is unknown. What carries into Saturday:</p>
+      <ol>
+        <li><span><b>Three phrasing recipes are load-bearing.</b> <span class="why">Supersession fires on a same-slot restatement; the tripwire fires on a directive that names the action's exact identifiers; recall + <span class="m">/revisions</span> together give the lineage answer. Bake these into the seed script.</span></span></li>
+        <li><span><b>Pre-warm everything.</b> <span class="why">~18s extraction is too slow for the stage &mdash; ingest all demo data ahead of time so Saturday reads cached memory.</span></span></li>
+        <li><span><b>One limitation to design around.</b> <span class="why">Typed <span class="m">retracted</span> won't auto-fire &mdash; handle a waiver in Enid's app state, don't lean on it as a beat.</span></span></li>
+      </ol>
+    </div>
+    <div class="legend">
+      <span class="pill done">Done</span> proven / confirmed on the live API
+      <span class="pill crit">Critical</span> a hero beat rides on it
+      <span class="pill todo">To run</span> not yet exercised
+    </div>
+  </section>
+
+</div>

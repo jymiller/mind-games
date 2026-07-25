@@ -10,6 +10,7 @@
 // assess() knows nothing about Thornwick, and nothing here branches on a literal ratio.
 import { readFileSync } from "node:fs";
 import { searchDomain } from "./xtrace.js";
+import { redact } from "./redact.js";
 
 const CERT_FILE = new URL("../fixtures/thornwick/03-compliance-certificates.md", import.meta.url);
 const PERIOD = "Q1 2026 · Test Date 31 March 2026";
@@ -105,7 +106,7 @@ export async function getFlip() {
   } catch (e) {
     rev = FROZEN;
     label = "PRERUN";
-    note = `memory unreachable (${e.message}) — showing the frozen 25 Jul capture`;
+    note = `memory unreachable (${redact(e.message)}) — showing the frozen 25 Jul capture`;
   }
 
   // ONE function, TWO sets of inputs. This is the whole demo.

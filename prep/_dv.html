@@ -1,0 +1,75 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+  body{margin:0;background:#F5F3EC}
+  #stage{position:relative;width:1360px;height:680px;font-family:ui-monospace,Menlo,monospace}
+  .node{position:absolute;box-sizing:border-box;border-radius:10px;border:1.5px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4px 8px;box-shadow:0 1px 2px rgba(20,18,12,.06)}
+  .node .n{font-weight:700;font-size:13px;line-height:1.15}
+  .node .s{font-size:10.5px;opacity:.82;margin-top:2px;line-height:1.15}
+  .person{background:#eef1f4;border-color:#8891a0;color:#2a2f38}
+  .agent{background:#e9eaed;border-color:#3b404a;color:#20242c}
+  .org{background:#efece4;border-color:#b8ad97;color:#3a3428}
+  .fact{background:#e8f0f9;border-color:#3E6DA6;color:#1c2a38}
+  .epi{background:#efeaf6;border-color:#7A5AA6;color:#2c2140}
+  .art{background:#faf0d8;border-color:#A9741B;color:#3a2c12}
+  .proc{background:#e2f1ee;border-color:#2E8B7A;color:#123a33}
+  .breach{background:#f6dcd7;border-color:#AF382C;color:#5a1a12}
+  .mem{position:absolute;border:1.5px solid #c9c2b4;background:#fff;border-radius:14px}
+  .memt{position:absolute;text-align:center;font-size:12px;letter-spacing:.06em;color:#8a5e12;font-weight:700}
+  svg text{font-family:ui-monospace,Menlo,monospace}
+  .lbl{font-size:11px;fill:#4a4436;paint-order:stroke;stroke:#F5F3EC;stroke-width:4px;stroke-linejoin:round}
+  .elbl{font-size:11px;font-weight:700;fill:#97301f;paint-order:stroke;stroke:#F5F3EC;stroke-width:4px;stroke-linejoin:round}
+  .zonel{font-size:11px;letter-spacing:.1em;fill:#8891a0;font-weight:700}
+</style></head><body>
+<div id="stage">
+  <svg width="1360" height="680" style="position:absolute;left:0;top:0;z-index:3;pointer-events:none" viewBox="0 0 1360 680">
+    <defs>
+      <marker id="a" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#8a7a5a"/></marker>
+      <marker id="r" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L9,5 L0,10 z" fill="#AF382C"/></marker>
+    </defs>
+    <!-- structural arrows -->
+    <path d="M210,266 C255,266 262,300 298,303" fill="none" stroke="#9a8a68" stroke-width="1.5" marker-end="url(#a)"/>
+    <path d="M210,356 C255,356 262,326 298,321" fill="none" stroke="#9a8a68" stroke-width="1.5" marker-end="url(#a)"/>
+    <path d="M460,312 L497,312" fill="none" stroke="#9a8a68" stroke-width="1.5" marker-end="url(#a)"/>
+    <path d="M240,118 C520,24 950,24 1150,286" fill="none" stroke="#9a8a68" stroke-width="1.5" marker-end="url(#a)"/>
+    <path d="M1240,202 L1240,268" fill="none" stroke="#9a8a68" stroke-width="1.5" marker-end="url(#a)"/>
+    <path d="M1240,390 L1240,328" fill="none" stroke="#9a8a68" stroke-width="1.5" marker-end="url(#a)"/>
+    <!-- engine: one red path Auditor -> Procedure -> Fact -> Breach, with numbered badges -->
+    <path d="M1205,400 C1070,400 1000,179 905,179" fill="none" stroke="#AF382C" stroke-width="2.5" marker-end="url(#r)"/>
+    <path d="M905,179 L905,558" fill="none" stroke="#AF382C" stroke-width="2.5"/>
+    <path d="M905,558 L905,575" fill="none" stroke="#AF382C" stroke-width="2.5" marker-end="url(#r)"/>
+    <g><circle cx="1205" cy="400" r="13" fill="#AF382C"/><text x="1205" y="404.5" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">1</text></g>
+    <g><circle cx="905" cy="179" r="13" fill="#AF382C"/><text x="905" y="183.5" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">2</text></g>
+    <g><circle cx="905" cy="251" r="13" fill="#AF382C"/><text x="905" y="255.5" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">3</text></g>
+    <!-- labels -->
+    <text class="lbl" x="252" y="258" text-anchor="middle">operate</text>
+    <text class="lbl" x="252" y="372" text-anchor="middle">operate</text>
+    <text class="lbl" x="695" y="40" text-anchor="middle">lends to</text>
+    <text class="lbl" x="1248" y="240" text-anchor="start">sponsors</text>
+    <text class="lbl" x="1248" y="362" text-anchor="start">audits</text>
+    <text class="elbl" x="1092" y="322" text-anchor="middle">auditor change</text>
+    <text class="elbl" x="924" y="176" text-anchor="start">procedure fires</text>
+    <text class="elbl" x="924" y="255" text-anchor="start">supersede → recompute</text>
+    <text class="elbl" x="924" y="474" text-anchor="start">→ retro-breach</text>
+    <text class="zonel" x="135" y="80" text-anchor="middle">THE LENDER</text>
+    <text class="zonel" x="1240" y="118" text-anchor="middle">THE BORROWER</text>
+  </svg>
+
+  <div class="node org" style="left:60px;top:96px;width:180px;height:56px"><div class="n">Blackford Credit</div><div class="s">the fund · our client</div></div>
+  <div class="node person" style="left:60px;top:240px;width:150px;height:52px"><div class="n">Officer Jane</div></div>
+  <div class="node person" style="left:60px;top:330px;width:150px;height:52px"><div class="n">Officer Bob</div></div>
+  <div class="node agent" style="left:300px;top:276px;width:160px;height:72px"><div class="n">Enid</div><div class="s">the agent</div></div>
+
+  <div class="mem" style="left:500px;top:88px;width:380px;height:360px"></div>
+  <div class="memt" style="left:500px;top:102px;width:380px">XTRACE MEMORY · what it stores</div>
+  <div class="node proc" style="left:525px;top:150px;width:330px;height:58px"><div class="n">Procedure</div><div class="s">auditor-change playbook</div></div>
+  <div class="node fact" style="left:525px;top:222px;width:330px;height:58px"><div class="n">Fact · semantic</div><div class="s">covenant 6.50× · EBITDA 50 → 43</div></div>
+  <div class="node art" style="left:525px;top:294px;width:330px;height:58px"><div class="n">Artifact</div><div class="s">agreement + compliance certs</div></div>
+  <div class="node epi" style="left:525px;top:366px;width:330px;height:58px"><div class="n">Episode</div><div class="s">each quarterly review</div></div>
+
+  <div class="node org" style="left:1150px;top:150px;width:180px;height:52px"><div class="n">Meridian</div><div class="s">the sponsor</div></div>
+  <div class="node org" style="left:1150px;top:270px;width:180px;height:56px"><div class="n">Northwind</div><div class="s">the borrower</div></div>
+  <div class="node org" style="left:1150px;top:390px;width:180px;height:56px"><div class="n">Auditor</div><div class="s">Halloran → Brandt</div></div>
+
+  <div class="node breach" style="left:520px;top:580px;width:520px;height:74px"><div class="n" style="font-size:15px">Q2: COMPLIANT → RETRO-BREACH · 6.86×</div><div class="s" style="font-size:12px">a signed-off quarter, recomputed on the restated $43M EBITDA</div></div>
+</div>
+<script>/* static */</script>
+</body></html>

@@ -2,6 +2,7 @@
 // run twice: memory-ON injects XTrace's composed context, memory-OFF gets nothing.
 // The only difference between arms is the memory. Scores are counted from the run.
 import { loadEnv, searchDomain } from "./xtrace.js";
+import { redact } from "./redact.js";
 
 const env = loadEnv();
 const MODEL = env.NOVITA_MODEL;
