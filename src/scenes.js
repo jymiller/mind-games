@@ -8,6 +8,7 @@ import { getCard } from "./card.js";
 import { propose } from "./gate.js";
 import { runDrift } from "./drift.js";
 import { coverage, SUGGESTED } from "./openbox.js";
+import { getChain } from "./chain.js";
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const x2 = (n) => Number(n).toFixed(2);
@@ -248,7 +249,54 @@ export const SCENES = [
       </section>`;
     },
   },
-  { id: "chain",    n: 5, title: "The Chain",    labels: ["SYNTHETIC DATA", "LIVE LINEAGE"],  built: false },
+  {
+    id: "chain",
+    n: 5,
+    title: "The Chain",
+    labels: ["SYNTHETIC DATA", "LIVE LINEAGE"],
+    built: true,
+    render: async () => {
+      const c = await getChain();
+      if (!c.nodes.length) {
+        return `<section class="card"><div class="eyebrow">Scene 5 &middot; The Chain</div>
+          <h1>Memory returned nothing.</h1>
+          <p class="sub">This lineage is built entirely from recalled memory, so with memory
+          unavailable it renders empty rather than showing a remembered shape of the truth.</p></section>`;
+      }
+      const nodes = c.nodes
+        .map(
+          (n) => `<div class="cnode ${esc(n.state)}">
+            <div class="cwhen">${esc(n.when)}</div>
+            <div class="chead">${esc(n.headline)}</div>
+            <div class="cdetail">${esc(n.detail)}</div>
+            <div class="csrc"><span class="pscore">${Number(n.source.score ?? 0).toFixed(2)}</span>
+              <span>${esc(n.source.text)}<span class="pmeta">${esc(n.source.conv_id)}</span></span></div>
+          </div>`,
+        )
+        .join("");
+      return `
+      <section class="card">
+        <div class="eyebrow">Scene 5 &middot; The Chain &mdash; ${esc(c.deal)}</div>
+        <h1 class="flip-h">Nothing is deleted. It is superseded, and the pointer is kept.</h1>
+        <p class="plain"><b>In plain English:</b> the old number does not vanish when a new one
+        arrives. The file keeps what was believed, when it was believed, and what replaced it &mdash;
+        so you can still ask what the lender thought in May and why they thought it. In a regulated
+        business that trail is not a nice-to-have; it is the product.</p>
+
+        <div class="chainwrap">${nodes}</div>
+
+        <div class="blocked">
+          <b>Where this lineage comes from, precisely.</b> The nodes above are reconstructed from the
+          documents held in memory, and each carries the sentence it came from. They are
+          <em>not</em> the memory platform's own revision chain: we queried
+          <code>GET /v1/memories/{id}/revisions</code> live for ${c.platform.checked} of these
+          memories just now and the deepest chain returned is
+          <b>${c.platform.maxNodes} node${c.platform.maxNodes === 1 ? "" : "s"}</b>.
+          ${esc(c.caveat)}
+        </div>
+      </section>`;
+    },
+  },
   {
     id: "ablation",
     n: 6,

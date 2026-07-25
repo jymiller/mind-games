@@ -24,7 +24,9 @@
     "check:card": "node check-card.mjs",
     "check:gate": "node check-gate.mjs",
     "check:drift": "node check-drift.mjs",
-    "check:openbox": "node check-openbox.mjs"
+    "check:openbox": "node check-openbox.mjs",
+    "check:chain": "node check-chain.mjs",
+    "check": "for c in flip ablation card gate drift openbox chain; do npm run -s check:$c || exit 1; done"
   },
   "dependencies": {
     "@xtraceai/memory": "^0.5.0"

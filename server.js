@@ -123,6 +123,23 @@ color:var(--amber);font-size:13.5px;line-height:1.55}
 .dnote summary:hover{color:var(--ink)}
 .dtime{color:#66717f;font-variant-numeric:tabular-nums;margin-left:6px}
 @media (max-width:640px){.sbrow{grid-template-columns:1fr;gap:4px}}
+.chainwrap{margin:26px 0 8px;padding-left:26px;position:relative}
+.chainwrap::before{content:"";position:absolute;left:6px;top:10px;bottom:10px;width:2px;background:var(--line)}
+.cnode{position:relative;padding:12px 0 16px}
+.cnode::before{content:"";position:absolute;left:-25px;top:17px;width:11px;height:11px;border-radius:50%;
+background:var(--bg);border:2px solid var(--dim)}
+.cnode.superseded::before{border-color:var(--red)}
+.cnode.event::before{border-color:var(--amber)}
+.cnode.active::before{border-color:var(--green);box-shadow:0 0 9px -1px var(--green)}
+.cwhen{color:var(--dim);font-size:11.5px;letter-spacing:.06em;font-variant-numeric:tabular-nums}
+.chead{font-size:17px;font-weight:600;margin-top:3px;color:var(--ink)}
+.cnode.superseded .chead{color:var(--dim);text-decoration:line-through}
+.cnode.active .chead{color:var(--green)}
+.cnode.event .chead{color:var(--amber)}
+.cdetail{color:var(--dim);font-size:13.5px;margin-top:4px}
+.csrc{display:grid;grid-template-columns:46px 1fr;gap:9px;margin-top:9px;color:var(--dim);font-size:12px;
+line-height:1.5;align-items:start}
+.csrc .pmeta{display:block;grid-column:auto;margin-top:3px}
 .qchips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .qchip{background:transparent;border:1px solid var(--line);border-radius:999px;padding:7px 13px;
 color:var(--dim);font:inherit;font-size:12.5px;cursor:pointer}
