@@ -4,6 +4,7 @@
 // Every scene MUST declare its honesty labels. Labels are product UI, not disclaimers.
 import { getFlip } from "./deal.js";
 import { QUESTIONS } from "./ablation.js";
+import { getCard } from "./card.js";
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const x2 = (n) => Number(n).toFixed(2);
@@ -30,7 +31,41 @@ export const SCENES = [
         </blockquote>
       </section>`,
   },
-  { id: "recall",   n: 2, title: "The Recall",   labels: ["SYNTHETIC DATA", "LIVE RECALL"],   built: false },
+  {
+    id: "recall",
+    n: 2,
+    title: "The Recall",
+    labels: ["SYNTHETIC DATA", "LIVE RECALL"],
+    built: true,
+    render: async () => {
+      const c = await getCard();
+      if (!c.rows.length) {
+        return `<section class="card"><div class="eyebrow">Scene 2 &middot; The Recall</div>
+          <h1>Memory returned nothing.</h1>
+          <p class="sub">This card is built entirely from recalled memory, so with the memory
+          unavailable it renders empty rather than showing you a stale figure.</p></section>`;
+      }
+      const rows = c.rows
+        .map(
+          (r) => `<div class="crow">
+            <div class="clabel">${esc(r.label)}</div>
+            <div class="cval">${esc(r.value)}${r.status ? ` <span class="badge pass">${esc(r.status)}</span>` : ""}
+              ${r.note ? `<span class="cnote">${esc(r.note)}</span>` : ""}</div>
+            <div class="csrc"><span class="pscore">${Number(r.source.score ?? 0).toFixed(2)}</span>
+              ${esc(r.source.text)} <span class="pmeta">${esc(r.source.conv_id)}</span></div>
+          </div>`,
+        )
+        .join("");
+      return `
+      <section class="card">
+        <div class="eyebrow">Scene 2 &middot; The Recall &mdash; ${esc(c.deal)}</div>
+        <h1 class="flip-h">What the file knows, three officers later.</h1>
+        <p class="sub">Recalled live from the deal's memory. Every row carries the sentence it
+        came from &mdash; nothing here is typed into the page.</p>
+        <div class="cardrows">${rows}</div>
+      </section>`;
+    },
+  },
   { id: "drift",    n: 3, title: "The Drift",    labels: ["SYNTHETIC DATA", "LIVE"],          built: false },
   {
     id: "flip",

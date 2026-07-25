@@ -81,6 +81,13 @@ align-items:start}
 padding:1px 0;text-align:center;font-size:11.5px}
 .ptext{color:var(--ink)}
 .pmeta{grid-column:2;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#66717f}
+.cardrows{margin-top:26px;display:grid;gap:2px}
+.crow{padding:15px 0;border-bottom:1px solid var(--line)}
+.clabel{color:var(--dim);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase}
+.cval{font-size:20px;font-weight:600;margin-top:5px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.cnote{color:var(--dim);font-size:13.5px;font-weight:400}
+.csrc{color:var(--dim);font-size:12px;margin-top:9px;display:grid;grid-template-columns:46px 1fr;gap:9px;
+align-items:start;line-height:1.5}
 .board{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:18px;align-items:stretch;margin:28px 0 24px}
 .armbox{border:1px solid var(--line);border-radius:12px;padding:20px 18px;background:#0f1318;text-align:center}
 .armbox.green{border-color:#1e4634}.armbox.red{border-color:#4a2229}
