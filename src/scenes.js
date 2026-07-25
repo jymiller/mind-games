@@ -3,6 +3,7 @@
 //
 // Every scene MUST declare its honesty labels. Labels are product UI, not disclaimers.
 import { getFlip } from "./deal.js";
+import { QUESTIONS } from "./ablation.js";
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const x2 = (n) => Number(n).toFixed(2);
@@ -102,7 +103,104 @@ export const SCENES = [
     },
   },
   { id: "chain",    n: 5, title: "The Chain",    labels: ["SYNTHETIC DATA", "LIVE LINEAGE"],  built: false },
-  { id: "ablation", n: 6, title: "The Ablation", labels: ["SYNTHETIC DATA", "LIVE EVAL"],     built: false },
+  {
+    id: "ablation",
+    n: 6,
+    title: "The Ablation",
+    labels: ["SYNTHETIC DATA", "LIVE EVAL"],
+    built: true,
+    render: () => {
+      // Rendered EMPTY on purpose. Every number on this screen arrives from the button.
+      const rows = QUESTIONS.map(
+        (q, i) => `<tr id="row-${q.id}">
+          <td class="qn">${i + 1}</td>
+          <td class="qtext">${esc(q.q)}</td>
+          <td class="cell" id="on-${q.id}"><span class="badge idle">&mdash;</span></td>
+          <td class="cell" id="off-${q.id}"><span class="badge idle">&mdash;</span></td>
+        </tr>`,
+      ).join("");
+      return `
+      <section class="card">
+        <div class="eyebrow">Scene 6 &middot; The Ablation &mdash; is the memory load-bearing?</div>
+        <h1 class="flip-h">Same questions. Same model. Memory on, then off.</h1>
+
+        <div class="board">
+          <div class="armbox green">
+            <div class="armlabel">Memory ON</div>
+            <div class="armnum idle" id="score-on">not run</div>
+            <div class="pcap">recalled context injected</div>
+          </div>
+          <div class="armbox red">
+            <div class="armlabel">Memory OFF</div>
+            <div class="armnum idle" id="score-off">not run</div>
+            <div class="pcap">identical prompt, no context</div>
+          </div>
+          <div class="runwrap">
+            <button class="runbtn" id="run-ablation">Run both arms live</button>
+            <div class="runstatus" id="run-status">10 model calls &middot; nothing has run yet</div>
+          </div>
+        </div>
+
+        <table class="qtable">
+          <thead><tr><th></th><th>Question</th><th class="cell">ON</th><th class="cell">OFF</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+
+        <p class="sub" style="margin-top:24px">
+          This is an <em>accuracy</em> delta &mdash; not cost, not latency. Both arms use the same model,
+          the same prompts and <code>temperature: 0</code>. The only difference is whether the recalled
+          memory is in the context window.
+        </p>
+        <p class="xcheck">
+          Read it honestly: the deal is synthetic, so the OFF arm has no prior knowledge to fall back on.
+          That is the point being measured &mdash; whether the answers are coming from memory rather than
+          from the model. It is not a claim that the model is weak.
+        </p>
+      </section>
+
+      <script>
+      (function () {
+        var btn = document.getElementById("run-ablation");
+        var status = document.getElementById("run-status");
+        function badge(pass) {
+          return '<span class="badge ' + (pass ? "pass" : "fail") + '">' + (pass ? "PASS" : "FAIL") + "</span>";
+        }
+        btn.addEventListener("click", async function () {
+          btn.disabled = true;
+          status.textContent = "running 10 live model calls, please wait…";
+          var t0 = Date.now();
+          try {
+            var res = await fetch("/api/ablation");
+            var d = await res.json();
+            if (d.error) throw new Error(d.error);
+            var onEl = document.getElementById("score-on"), offEl = document.getElementById("score-off");
+            onEl.textContent = d.on.score + "/" + d.n; onEl.classList.remove("idle");
+            offEl.textContent = d.off.score + "/" + d.n; offEl.classList.remove("idle");
+            for (var i = 0; i < d.on.results.length; i++) {
+              var on = d.on.results[i], off = d.off.results[i];
+              document.getElementById("on-" + on.id).innerHTML = badge(on.pass);
+              document.getElementById("off-" + off.id).innerHTML = badge(off.pass);
+              var row = document.getElementById("row-" + on.id);
+              if (row && !row.dataset.expanded) {
+                row.dataset.expanded = "1";
+                var tr = document.createElement("tr");
+                tr.className = "answerrow";
+                tr.innerHTML = '<td></td><td colspan="3"><b>ON:</b> ' + (on.answer || "") + "</td>";
+                row.parentNode.insertBefore(tr, row.nextSibling);
+              }
+            }
+            var secs = ((Date.now() - t0) / 1000).toFixed(1);
+            status.innerHTML = "computed from this run &middot; " + d.model + " &middot; temperature " +
+              d.temperature + " &middot; n=" + d.n + " &middot; " + secs + "s";
+          } catch (e) {
+            status.textContent = "run failed: " + e.message + " (nothing is shown rather than a cached score)";
+          }
+          btn.disabled = false;
+        });
+      })();
+      </script>`;
+    },
+  },
   { id: "gate",     n: 7, title: "The Gate",     labels: ["SYNTHETIC REGISTER"],              built: false },
   { id: "openbox",  n: 8, title: "The Open Box", labels: ["SYNTHETIC DATA", "REPLAY"],        built: false },
 ];

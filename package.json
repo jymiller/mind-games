@@ -19,7 +19,8 @@
     "exp4": "node experiments/exp4-trigger.js",
     "exp5": "node experiments/exp5-eval-toggle.js",
     "exp6": "node experiments/exp6-quota.js",
-    "experiments": "for e in 0 1 2 3 4 5 6; do node experiments/exp$e-*.js; done"
+    "experiments": "for e in 0 1 2 3 4 5 6; do node experiments/exp$e-*.js; done",
+    "check:ablation": "node check-ablation.mjs"
   },
   "dependencies": {
     "@xtraceai/memory": "^0.5.0"
