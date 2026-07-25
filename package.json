@@ -11,6 +11,7 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "smoke": "node smoke.js",
+    "check:flip": "node check-flip.mjs",
     "exp0": "node experiments/exp0-latency.js",
     "exp1": "node experiments/exp1-supersession.js",
     "exp2": "node experiments/exp2-retraction.js",

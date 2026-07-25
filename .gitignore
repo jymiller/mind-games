@@ -4,3 +4,14 @@ node_modules/
 .DS_Store
 *.log
 scratch/
+
+# private prep — keep untracked
+HANDOFF.md
+
+# any .env variant (backups, .local, etc) — keep the template
+.env*
+!.env.example
+
+# strategy + architecture notes — keep OUT of public history
+memory/
+INFRASTRUCTURE.md
