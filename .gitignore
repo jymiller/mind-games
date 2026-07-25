@@ -15,3 +15,6 @@ HANDOFF.md
 # strategy + architecture notes — keep OUT of public history
 memory/
 INFRASTRUCTURE.md
+
+# runtime attestation register (synthetic, regenerated at will)
+data/

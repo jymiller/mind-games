@@ -21,7 +21,8 @@
     "exp6": "node experiments/exp6-quota.js",
     "experiments": "for e in 0 1 2 3 4 5 6; do node experiments/exp$e-*.js; done",
     "check:ablation": "node check-ablation.mjs",
-    "check:card": "node check-card.mjs"
+    "check:card": "node check-card.mjs",
+    "check:gate": "node check-gate.mjs"
   },
   "dependencies": {
     "@xtraceai/memory": "^0.5.0"

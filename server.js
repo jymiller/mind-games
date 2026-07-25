@@ -11,6 +11,8 @@ import { SCENES, getScene, JUDGE_SENTENCE } from "./src/scenes.js";
 import { getFlip } from "./src/deal.js";
 import { runAblation } from "./src/ablation.js";
 import { getStoryboard } from "./src/storyboard.js";
+import { attest, register } from "./src/gate.js";
+import { redact } from "./src/redact.js";
 
 const PORT = process.env.PORT || 3000;
 const HOST = "0.0.0.0";
@@ -120,6 +122,21 @@ color:var(--amber);font-size:13.5px;line-height:1.55}
 .dnote summary:hover{color:var(--ink)}
 .dtime{color:#66717f;font-variant-numeric:tabular-nums;margin-left:6px}
 @media (max-width:640px){.sbrow{grid-template-columns:1fr;gap:4px}}
+.proposal{margin-top:24px;border:1px solid var(--line);border-radius:12px;padding:20px;background:#0f1318}
+.pact{font-size:19px;font-weight:600;margin:0 0 6px;color:var(--ink)}
+.pbasis{color:var(--dim);font-size:14px;margin:0 0 16px}
+.denied{display:inline-block;color:var(--red);border:1px solid #4a2229;background:#1a0f12;
+border-radius:7px;padding:9px 13px;font-size:13px;line-height:1.5}
+.attestrow{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.attestin{flex:1;min-width:260px;background:#0b0f13;border:1px solid var(--line);border-radius:9px;
+padding:13px 15px;color:var(--ink);font:inherit;font-size:14.5px}
+.attestin:focus{outline:none;border-color:var(--accent)}
+.regentry{border:1px solid var(--line);border-radius:9px;padding:13px 15px;margin-bottom:9px;background:#0f1318}
+.regtop{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:14px;color:var(--ink)}
+.regat{color:var(--dim);font-size:12px;margin-left:auto;font-variant-numeric:tabular-nums}
+.regact{color:var(--dim);font-size:13px;margin-top:5px}
+.reghash{color:#66717f;font-size:11px;margin-top:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+line-height:1.5}
 .cardrows{margin-top:26px;display:grid;gap:2px}
 .crow{padding:15px 0;border-bottom:1px solid var(--line)}
 .clabel{color:var(--dim);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase}
@@ -274,6 +291,18 @@ async function page(scene) {
 </div></body></html>`;
 }
 
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let data = "";
+    req.on("data", (c) => {
+      data += c;
+      if (data.length > 10_000) reject(new Error("body too large"));
+    });
+    req.on("end", () => resolve(data));
+    req.on("error", reject);
+  });
+}
+
 const json = (res, code, obj) => {
   res.writeHead(code, { "content-type": "application/json; charset=utf-8" });
   res.end(JSON.stringify(obj));
@@ -290,6 +319,18 @@ const server = createServer(async (req, res) => {
   if (path === "/api/flip") {
     try { return json(res, 200, await getFlip()); }
     catch (e) { return json(res, 502, { error: e.message }); }
+  }
+  if (path === "/api/register") {
+    try { return json(res, 200, register()); }
+    catch (e) { return json(res, 502, { error: redact(e.message) }); }
+  }
+  if (path === "/api/attest" && req.method === "POST") {
+    try {
+      const body = JSON.parse((await readBody(req)) || "{}");
+      return json(res, 200, { ...attest({ who: body.who }), register: register() });
+    } catch (e) {
+      return json(res, 400, { error: redact(e.message) });
+    }
   }
   if (path === "/api/ablation") {
     // Runs both arms live: 10 model calls. No cached scores, ever.

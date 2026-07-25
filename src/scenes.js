@@ -5,6 +5,7 @@
 import { getFlip } from "./deal.js";
 import { QUESTIONS } from "./ablation.js";
 import { getCard } from "./card.js";
+import { propose } from "./gate.js";
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const x2 = (n) => Number(n).toFixed(2);
@@ -309,7 +310,77 @@ export const SCENES = [
       </script>`;
     },
   },
-  { id: "gate",     n: 7, title: "The Gate",     labels: ["SYNTHETIC REGISTER"],              built: false },
+  {
+    id: "gate",
+    n: 7,
+    title: "The Gate",
+    labels: ["SYNTHETIC REGISTER", "LIVE ATTESTATION"],
+    built: true,
+    render: () => {
+      const p = propose();
+      return `
+      <section class="card">
+        <div class="eyebrow">Scene 7 &middot; The Gate</div>
+        <h1 class="flip-h">It found the breach. It is not allowed to file it.</h1>
+        <p class="plain"><b>In plain English:</b> deciding that a borrower has broken its loan terms is
+        a legal act with consequences. The software can work out that it happened &mdash; it is not
+        allowed to be the one who says so. It writes up what it wants to do and stops, and a named
+        person has to sign before anything is recorded.</p>
+
+        <div class="proposal">
+          <div class="minihead">What the agent proposes</div>
+          <p class="pact">${esc(p.action)}</p>
+          <p class="pbasis">${esc(p.basis)}</p>
+          <div class="denied">${esc(p.authority)} &mdash; ${esc(p.reason)}</div>
+        </div>
+
+        <div class="attestrow">
+          <input class="attestin" id="who" type="text" autocomplete="off"
+                 placeholder="Name of the credit officer attesting" />
+          <button class="runbtn" id="do-attest">Attest and commit</button>
+        </div>
+        <div class="runstatus" id="attest-status">Nothing has been written. The register is untouched until a name is entered and this is pressed.</div>
+
+        <div class="prov">
+          <div class="minihead">The register &mdash; append-only, hash-chained</div>
+          <div id="register">loading&hellip;</div>
+        </div>
+      </section>
+
+      <script>
+      (function () {
+        var out = document.getElementById("register");
+        var status = document.getElementById("attest-status");
+        function draw(r) {
+          if (!r.entries.length) { out.innerHTML = '<p class="xcheck">Empty. Nothing has ever been committed.</p>'; return; }
+          var html = r.entries.map(function (e) {
+            return '<div class="regentry"><div class="regtop"><b>#' + e.seq + '</b> ' + e.who +
+              '<span class="regat">' + e.at + '</span></div>' +
+              '<div class="regact">' + e.action + '</div>' +
+              '<div class="reghash">hash ' + e.hash.slice(0, 24) + '&hellip;<br>prev ' + e.prev.slice(0, 24) + '&hellip;</div></div>';
+          }).join("");
+          var v = r.verified.ok
+            ? '<span class="badge pass">CHAIN VERIFIED &middot; ' + r.verified.links + ' link(s)</span>'
+            : '<span class="badge fail">CHAIN BROKEN AT #' + r.verified.brokeAt + '</span>';
+          out.innerHTML = html + '<div style="margin-top:12px">' + v + '</div>';
+        }
+        fetch("/api/register").then(function (r) { return r.json(); }).then(draw);
+        document.getElementById("do-attest").addEventListener("click", async function () {
+          var who = document.getElementById("who").value;
+          if (!who.trim()) { status.textContent = "Enter a name first — an attestation without a person is not an attestation."; return; }
+          status.textContent = "committing…";
+          try {
+            var res = await fetch("/api/attest", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ who: who }) });
+            var d = await res.json();
+            if (d.error) throw new Error(d.error);
+            draw(d.register);
+            status.textContent = "committed as entry #" + d.committed.seq + " — and the attestation is itself remembered.";
+          } catch (e) { status.textContent = "refused: " + e.message; }
+        });
+      })();
+      </script>`;
+    },
+  },
   { id: "openbox",  n: 8, title: "The Open Box", labels: ["SYNTHETIC DATA", "REPLAY"],        built: false },
 ];
 
