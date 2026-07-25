@@ -241,11 +241,16 @@ async function page(scene) {
       <p class="sub">Live data was unavailable and no frozen fallback answered.</p>
       <p class="todo-note">${esc(e.message)}</p></section>`;
   }
-  if (scene.id === "lane" && JUDGE_SENTENCE) {
-    body = body.replace(
-      /<span id="judge-sentence">[\s\S]*?<\/span>/,
-      `<span id="judge-sentence" style="color:var(--ink)">${esc(JUDGE_SENTENCE)}</span>`,
-    );
+  // The judge-quote block is optional. With a sentence set, it renders. With none set the
+  // whole block is REMOVED — otherwise a visitor reads "<their exact sentence — edit
+  // JUDGE_SENTENCE in src/scenes.js at 10:30>", which is an editing note, not a title card.
+  if (scene.id === "lane") {
+    body = JUDGE_SENTENCE
+      ? body.replace(
+          /<span id="judge-sentence">[\s\S]*?<\/span>/,
+          `<span id="judge-sentence" style="color:var(--ink)">${esc(JUDGE_SENTENCE)}</span>`,
+        )
+      : body.replace(/<blockquote id="judge-quote"[\s\S]*?<\/blockquote>/, "");
   }
   return `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
