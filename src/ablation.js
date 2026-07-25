@@ -19,7 +19,9 @@ export const QUESTIONS = [
   { id: "q2", q: "Given the FY2025 audit restatement, is Thornwick's Q1 2026 leverage covenant position still compliant? State the restated ratio.",
     expect: [{ label: "7.59x restated", re: /7\.59|7\.6(?!\d)/ }, { label: "identifies a breach", re: /breach|not compliant|non-compliant|not in compliance|no longer compliant|event of default|default/i }] },
   { id: "q3", q: "What caused Thornwick's Q1 2026 covenant breach — a change in debt, or a change in EBITDA?",
-    expect: [{ label: "EBITDA, not debt", re: /ebitda/i }, { label: "disallowed synergy add-back", re: /synerg|3\.0|add-back/i }, { label: "not driven by debt", re: /unchanged|unaffected|did not (change|move)|no change|not a change in debt|not (a )?(change|increase) in (net )?debt|rather than (a change in )?debt/i }] },
+    expect: [{ label: "EBITDA, not debt", re: /ebitda/i }, { label: "disallowed synergy add-back", re: /synerg|3\.0|add-back/i }, // "attributes the cause to EBITDA rather than debt" — accept any phrasing of that claim.
+    // A WRONG answer says the cause WAS debt, and none of these match it.
+    { label: "not driven by debt", re: /not (a |any )?(change|increase|movement)? ?in ?(net )?debt|not debt|unchanged|unaffected|did not (change|move)|no change in (net )?debt|rather than (a change in )?debt|debt (was|did) not/i }] },
   // Asks what memory HOLDS, not what the source document holds: the 7.25x reset level did
   // not survive extraction, and the ON arm correctly refuses to guess it rather than
   // hallucinating a number. The waiver itself, and the instrument that granted it, did.
@@ -64,7 +66,7 @@ export async function runAblation() {
       const { answer, finish } = await ask(q.q, withMemory ? contexts[i] : null);
       return { id: q.id, q: q.q, answer, finish, ...grade(answer, q.expect) };
     } catch (e) {
-      return { id: q.id, q: q.q, answer: `[call failed: ${e.message}]`, error: true, pass: false,
+      return { id: q.id, q: q.q, answer: `[call failed: ${redact(e.message)}]`, error: true, pass: false,
                hits: q.expect.map((x) => ({ label: x.label, hit: false })) };
     }
   };
@@ -72,6 +74,13 @@ export async function runAblation() {
     Promise.all(QUESTIONS.map((q, i) => one(q, i, true))),
     Promise.all(QUESTIONS.map((q, i) => one(q, i, false))),
   ]);
-  return { label: "LIVE EVAL", model: MODEL, n: QUESTIONS.length, temperature: 0,
-           on: { score: scoreArm(on), results: on }, off: { score: scoreArm(off), results: off } };
+  // A call that never completed is NOT a wrong answer. If any call failed, that arm is
+  // incomplete and its score is meaningless — the page must refuse to show it as a result.
+  // Novita allows 30 req/min and one run is 10 calls, so two quick runs can 429.
+  const errs = (arm) => arm.filter((r) => r.error).length;
+  const rateLimited = [...on, ...off].some((r) => /429|rate.?limit/i.test(r.answer || ""));
+
+  return { label: "LIVE EVAL", model: MODEL, n: QUESTIONS.length, temperature: 0, rateLimited,
+           on: { score: scoreArm(on), results: on, errors: errs(on), complete: errs(on) === 0 },
+           off: { score: scoreArm(off), results: off, errors: errs(off), complete: errs(off) === 0 } };
 }

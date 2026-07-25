@@ -33,7 +33,16 @@ border:1px solid var(--line);background:var(--panel);color:var(--dim);
 font-size:12.5px;text-decoration:none;white-space:nowrap}
 .chip b{color:var(--ink);font-weight:600}
 .chip.on{border-color:var(--accent);color:var(--ink)}
-.chip.todo{opacity:.55}
+.chip.ready{color:var(--ink);border-color:#2a4a3a;background:#101a15}
+.chip.ready b{color:var(--green)}
+.chip.ready:hover{border-color:var(--green)}
+.chip.on.ready{border-color:var(--accent);background:var(--panel);box-shadow:0 0 0 1px var(--accent)}
+.chip.todo{opacity:.34;border-style:dashed;background:transparent}
+.chip.todo b{color:var(--dim)}
+.livedot{width:7px;height:7px;border-radius:50%;background:var(--green);flex:0 0 auto;
+box-shadow:0 0 7px -1px var(--green)}
+.striplegend{display:inline-flex;align-items:center;gap:7px;color:var(--dim);font-size:11.5px;
+padding:7px 4px;white-space:nowrap}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:34px}
 .eyebrow{color:var(--dim);font-size:12.5px;letter-spacing:.09em;text-transform:uppercase;margin-bottom:20px}
 h1{font-size:clamp(28px,4.6vw,46px);line-height:1.12;margin:0 0 18px;letter-spacing:-.02em}
@@ -146,12 +155,18 @@ function labelClass(l) {
   return "label";
 }
 
+// The strip has to be readable at a glance from a laptop on a table: a live scene must be
+// obviously clickable, a storyboard-only one obviously not. Nobody should burn a judge's
+// attention opening a page that has no implementation behind it.
 function strip(activeId) {
-  return SCENES.map(
+  const built = SCENES.filter((s) => s.built).length;
+  const chips = SCENES.map(
     (s) =>
-      `<a class="chip ${s.id === activeId ? "on" : ""} ${s.built ? "" : "todo"}" href="/scene/${s.id}">` +
-      `<b>${s.n}</b> ${esc(s.title)}${s.built ? "" : " &middot; todo"}</a>`,
+      `<a class="chip ${s.id === activeId ? "on" : ""} ${s.built ? "ready" : "todo"}" href="/scene/${s.id}">` +
+      `${s.built ? '<span class="livedot"></span>' : ""}<b>${s.n}</b> ${esc(s.title)}` +
+      `${s.built ? "" : " &middot; storyboard"}</a>`,
   ).join("");
+  return `${chips}<span class="striplegend"><span class="livedot"></span> ${built} live &middot; ${SCENES.length - built} storyboard only</span>`;
 }
 
 // Storyboard rows. Design intent only — never a source of figures for a live screen.

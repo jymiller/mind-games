@@ -209,8 +209,21 @@ export const SCENES = [
             var d = await res.json();
             if (d.error) throw new Error(d.error);
             var onEl = document.getElementById("score-on"), offEl = document.getElementById("score-off");
-            onEl.textContent = d.on.score + "/" + d.n; onEl.classList.remove("idle");
-            offEl.textContent = d.off.score + "/" + d.n; offEl.classList.remove("idle");
+            // An incomplete arm has no score. Showing 0/5 for calls that never ran would be
+            // a lie in the one direction this whole demo cannot afford.
+            function setScore(el, arm) {
+              if (arm.complete) { el.textContent = arm.score + "/" + d.n; el.classList.remove("idle"); }
+              else { el.textContent = "no result"; el.classList.add("idle"); }
+            }
+            setScore(onEl, d.on); setScore(offEl, d.off);
+            if (!d.on.complete || !d.off.complete) {
+              var why = d.rateLimited
+                ? "rate limited by the model API (30 requests/min; one run is 10 calls). Wait a minute and run it again."
+                : (d.on.errors + d.off.errors) + " of " + (d.n * 2) + " calls failed.";
+              status.textContent = "run did not complete — " + why + " No score is shown, because these calls never returned an answer.";
+              btn.disabled = false;
+              return;
+            }
             for (var i = 0; i < d.on.results.length; i++) {
               var on = d.on.results[i], off = d.off.results[i];
               document.getElementById("on-" + on.id).innerHTML = badge(on.pass);
@@ -230,7 +243,17 @@ export const SCENES = [
           } catch (e) {
             status.textContent = "run failed: " + e.message + " (nothing is shown rather than a cached score)";
           }
-          btn.disabled = false;
+          // One run is 10 of the 30 calls/min the API allows. Hold the button down for a
+          // beat so an eager second press cannot turn a good result into a rate limit.
+          var left = 20;
+          btn.disabled = true;
+          var label = btn.textContent;
+          btn.textContent = "Run again in " + left + "s";
+          var iv = setInterval(function () {
+            left -= 1;
+            if (left <= 0) { clearInterval(iv); btn.disabled = false; btn.textContent = label; }
+            else btn.textContent = "Run again in " + left + "s";
+          }, 1000);
         });
       })();
       </script>`;
