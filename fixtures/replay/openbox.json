@@ -1,0 +1,140 @@
+{
+  "captured": "2026-07-25T23:49:09.704Z",
+  "note": "Captured from live runs by scripts/freeze-replay.mjs. Not hand-written.",
+  "answers": {
+    "what did we believe about thornwicks q1 2026 leverage in may 2026 and what changed": {
+      "question": "What did we believe about Thornwick's Q1 2026 leverage in May 2026, and what changed?",
+      "answer": "In May 2026, Thornwick's compliance certificate had certified Total Net Leverage of 6.47x against a 6.50x limit. The FY2025 audited accounts delivered on 2026-07-03 restated Adjusted EBITDA, bringing the restated Total Net Leverage to 7.59x, mainly from a £3.0m disallowed synergy add-back and £1.7m of revenue recognised too early.",
+      "sources": [
+        {
+          "text": "Thornwick Logistics Holdings Limited's 31 March 2026 compliance certificate had certified Total Net Leverage of 6.47x against a 6.50x limit.",
+          "conv_id": "thornwick-04-restatement",
+          "score": 1
+        },
+        {
+          "text": "Thornwick Logistics Holdings Limited's restated Total Net Leverage at 31 March 2026 was 7.59x against a required maximum of 6.50x.",
+          "conv_id": "thornwick-04-restatement",
+          "score": 0.999
+        },
+        {
+          "text": "Thornwick Logistics Holdings Limited's restated Total Net Leverage at 31 December 2025 was 7.36x against a required maximum of 6.50x.",
+          "conv_id": "thornwick-04-restatement",
+          "score": 0.998
+        },
+        {
+          "text": "The FY2025 audited accounts delivered on 2026-07-03 restated Adjusted EBITDA and caused Thornwick to be out of compliance with the Total Net Leverage covenant and the Interest Cover covenant at the 31 December 2025 and 31 March 2026 Test Dates.",
+          "conv_id": "thornwick-02-amendment-and-waiver",
+          "score": 0.997
+        },
+        {
+          "text": "Thornwick Logistics Holdings Limited's FY2025 audited consolidated financial statements restated previously certified covenant figures for the quarters ended 31 December 2025 and 31 March 2026.",
+          "conv_id": "thornwick-04-restatement",
+          "score": 0.996
+        },
+        {
+          "text": "Thornwick Logistics Holdings Limited's restated ratios gave rise to Events of Default under Clause 22.4 at both 31 December 2025 and 31 March 2026.",
+          "conv_id": "thornwick-04-restatement",
+          "score": 0.995
+        },
+        {
+          "text": "Thornwick Logistics Holdings Limited's 31 March 2026 restatement removed £5.0m of EBITDA, mainly from a £3.0m disallowed synergy add-back and £1.7m of revenue recognised too early.",
+          "conv_id": "thornwick-04-restatement",
+          "score": 0.994
+        }
+      ]
+    },
+    "has this borrower restated before": {
+      "question": "Has this borrower restated before?",
+      "answer": "Yes, Halveston Services Group Limited restated its Q2 2024 certified figures via the Halveston Note 24 correction, which moved Total Net Leverage from 5.38x to 6.22x against a 5.75x limit.",
+      "sources": [
+        {
+          "text": "Ardenmoor Capital Partners LLP has done this before on at least two financings: Halveston Services (2024) and Thornwick Logistics (2026).",
+          "conv_id": "cross-deal-ardenmoor-pattern",
+          "score": 1
+        },
+        {
+          "text": "Amendment and Waiver No. 1 resets the Total Net Leverage and Interest Cover covenant levels for Thornwick Logistics Holdings Limited.",
+          "conv_id": "thornwick-02-amendment-and-waiver",
+          "score": 0.999
+        },
+        {
+          "text": "Thornwick Logistics Holdings Limited's Total Net Debt was unaffected by the restatement.",
+          "conv_id": "thornwick-04-restatement",
+          "score": 0.998
+        },
+        {
+          "text": "The Halveston Note 24 correction supersedes the Q2 2024 certified figures.",
+          "conv_id": "halveston-03-restatement",
+          "score": 0.997
+        },
+        {
+          "text": "Halveston Services Group Limited's Total Net Leverage moved from 5.38x to 6.22x against a 5.75x limit after the Note 24 correction.",
+          "conv_id": "halveston-03-restatement",
+          "score": 0.996
+        },
+        {
+          "text": "Halveston Services Group Limited's Total Net Debt remained GBP 140.0m after the Note 24 correction.",
+          "conv_id": "halveston-03-restatement",
+          "score": 0.995
+        },
+        {
+          "text": "Halveston Services Group Limited's resulting Event of Default was later waived.",
+          "conv_id": "halveston-03-restatement",
+          "score": 0.994
+        },
+        {
+          "text": "Halveston Services Group Limited was certified compliant under the Senior Facilities Agreement dated 2022-03-14, with no Default continuing.",
+          "conv_id": "halveston-02-compliance-cert-q2-2024",
+          "score": 0.993
+        }
+      ]
+    },
+    "who signed the last compliance certificate": {
+      "question": "Who signed the last compliance certificate?",
+      "answer": "The last compliance certificate, dated 13 May 2026, was signed by R. Sandoval, Chief Financial Officer. This is the Thornwick compliance certificate. No other certificate in the recalled memory has a later date.",
+      "sources": [
+        {
+          "text": "The Thornwick compliance certificate was signed on 13 May 2026 by R. Sandoval, Chief Financial Officer.",
+          "conv_id": "thornwick-03b-compliance-cert-q1-2026",
+          "score": 1
+        },
+        {
+          "text": "The Compliance Certificate was signed on 2026-02-12 by R. Sandoval, Chief Financial Officer.",
+          "conv_id": "thornwick-03a-compliance-cert-q4-2025",
+          "score": 0.999
+        },
+        {
+          "text": "The Halveston Compliance Certificate is for Q2 2024, with test date 2024-06-30 and signature date 2024-08-08.",
+          "conv_id": "halveston-02-compliance-cert-q2-2024",
+          "score": 0.998
+        }
+      ]
+    },
+    "what happened to the covenant breach": {
+      "question": "What happened to the covenant breach?",
+      "answer": "The covenant breaches at 31 December 2025 and 31 March 2026 were subsequently waived and the covenant levels were reset under Amendment & Waiver No. 1 dated 28 August 2026. The FY2025 audited accounts had caused Thornwick to be out of compliance, but the Lenders irrevocably waived the Specified Breaches under Clause 22.4.",
+      "sources": [
+        {
+          "text": "Thornwick Logistics Holdings Limited's Events of Default under Clause 22.4 at 31 December 2025 and 31 March 2026 were subsequently waived and the covenant levels were reset under Amendment & Waiver No. 1 dated 28 August 2026.",
+          "conv_id": "thornwick-04-restatement",
+          "score": 1
+        },
+        {
+          "text": "The FY2025 audited accounts delivered on 2026-07-03 restated Adjusted EBITDA and caused Thornwick to be out of compliance with the Total Net Leverage covenant and the Interest Cover covenant at the 31 December 2025 and 31 March 2026 Test Dates.",
+          "conv_id": "thornwick-02-amendment-and-waiver",
+          "score": 0.999
+        },
+        {
+          "text": "Amendment and Waiver No. 1 resets the Total Net Leverage and Interest Cover covenant levels for Thornwick Logistics Holdings Limited.",
+          "conv_id": "thornwick-02-amendment-and-waiver",
+          "score": 0.998
+        },
+        {
+          "text": "The Lenders irrevocably waived the Specified Breaches under Clause 22.4 of the Thornwick Senior Facilities Agreement.",
+          "conv_id": "thornwick-02-amendment-and-waiver",
+          "score": 0.997
+        }
+      ]
+    }
+  }
+}

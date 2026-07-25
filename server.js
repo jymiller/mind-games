@@ -12,6 +12,7 @@ import { getFlip } from "./src/deal.js";
 import { runAblation } from "./src/ablation.js";
 import { getStoryboard } from "./src/storyboard.js";
 import { attest, register } from "./src/gate.js";
+import { ask } from "./src/openbox.js";
 import { redact } from "./src/redact.js";
 
 const PORT = process.env.PORT || 3000;
@@ -122,6 +123,15 @@ color:var(--amber);font-size:13.5px;line-height:1.55}
 .dnote summary:hover{color:var(--ink)}
 .dtime{color:#66717f;font-variant-numeric:tabular-nums;margin-left:6px}
 @media (max-width:640px){.sbrow{grid-template-columns:1fr;gap:4px}}
+.qchips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.qchip{background:transparent;border:1px solid var(--line);border-radius:999px;padding:7px 13px;
+color:var(--dim);font:inherit;font-size:12.5px;cursor:pointer}
+.qchip:hover{border-color:var(--accent);color:var(--ink)}
+.ansheadrow{display:flex;align-items:center;gap:10px;margin-top:24px}
+.ansbody{font-size:17px;line-height:1.6;color:var(--ink);margin:14px 0 0;max-width:70ch}
+.notinmem{font-size:15px;line-height:1.6;color:var(--dim);margin:14px 0 0;max-width:70ch;
+border-left:3px solid var(--red);padding-left:15px}
+.badge.idle{color:var(--amber);border-color:#4a3a1e}
 .fieldmap{border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .fieldrow{display:flex;justify-content:space-between;gap:12px;padding:10px 13px;font-size:13px;
 border-bottom:1px solid var(--line);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
@@ -327,6 +337,10 @@ const server = createServer(async (req, res) => {
   if (path === "/api/flip") {
     try { return json(res, 200, await getFlip()); }
     catch (e) { return json(res, 502, { error: e.message }); }
+  }
+  if (path === "/api/ask") {
+    try { return json(res, 200, await ask(url.searchParams.get("q") || "")); }
+    catch (e) { return json(res, 502, { error: redact(e.message) }); }
   }
   if (path === "/api/register") {
     try { return json(res, 200, register()); }

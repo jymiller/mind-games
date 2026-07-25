@@ -7,6 +7,7 @@ import { QUESTIONS } from "./ablation.js";
 import { getCard } from "./card.js";
 import { propose } from "./gate.js";
 import { runDrift } from "./drift.js";
+import { coverage, SUGGESTED } from "./openbox.js";
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const x2 = (n) => Number(n).toFixed(2);
@@ -447,7 +448,86 @@ export const SCENES = [
       </script>`;
     },
   },
-  { id: "openbox",  n: 8, title: "The Open Box", labels: ["SYNTHETIC DATA", "REPLAY"],        built: false },
+  {
+    id: "openbox",
+    n: 8,
+    title: "The Open Box",
+    labels: ["SYNTHETIC DATA", "LIVE RECALL", "REPLAY WHEN CACHED"],
+    built: true,
+    render: async () => {
+      const cov = await coverage();
+      const chips = SUGGESTED.map((q) => `<button class="qchip" data-q="${esc(q)}">${esc(q)}</button>`).join("");
+      return `
+      <section class="card">
+        <div class="eyebrow">Scene 8 &middot; The Open Box</div>
+        <h1 class="flip-h">Ask the deal anything.</h1>
+        <p class="plain"><b>In plain English:</b> type a question about the loan and it answers from
+        what it remembers, showing you the sentences it used. Ask something it was never told and it
+        says so &mdash; it will not invent an answer to look clever. If the model is unreachable it
+        falls back to an answer captured earlier and labels it <em>REPLAY</em>, so you always know
+        whether you are seeing something live.</p>
+
+        <div class="attestrow">
+          <input class="attestin" id="q" type="text" autocomplete="off"
+                 placeholder="e.g. what happened to the covenant breach?" />
+          <button class="runbtn" id="ask">Ask</button>
+        </div>
+        <div class="qchips">${chips}</div>
+        <div class="runstatus" id="ask-status">Memory covers ${cov.deals.length} borrower(s)${cov.memories ? ` across ${cov.memories} memories` : ""}.</div>
+
+        <div id="answer"></div>
+      </section>
+
+      <script>
+      (function () {
+        var box = document.getElementById("answer");
+        var status = document.getElementById("ask-status");
+        var input = document.getElementById("q");
+        function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+        function labelClass(l){ return l === "LIVE" ? "pass" : (l === "NOT IN MEMORY" ? "fail" : "idle"); }
+        function draw(d) {
+          if (d.state === "empty") { box.innerHTML = ""; status.textContent = "Type a question first."; return; }
+          var head = '<div class="ansheadrow"><span class="badge ' + labelClass(d.label) + '">' + esc(d.label) + '</span>' +
+            (d.captured ? '<span class="regat">captured ' + esc(d.captured) + '</span>' : "") + '</div>';
+          if (d.state === "not-in-memory") {
+            box.innerHTML = head + '<p class="notinmem">That is not in memory. It covers ' +
+              (d.coverage.deals || []).map(esc).join(", ") + ' — nothing else was ingested, so there is nothing honest to say about it.</p>';
+            status.textContent = "asked, and correctly refused";
+            return;
+          }
+          if (d.state === "unavailable") {
+            box.innerHTML = head + '<p class="notinmem">' + esc(d.why) + '</p>';
+            status.textContent = "no answer available";
+            return;
+          }
+          var src = (d.sources || []).map(function (s) {
+            return '<li><span class="pscore">' + (s.score == null ? "—" : Number(s.score).toFixed(2)) + '</span>' +
+              '<span class="ptext">' + esc(s.text) + '</span><span class="pmeta">' + esc(s.conv_id || "") + '</span></li>';
+          }).join("");
+          box.innerHTML = head + '<p class="ansbody">' + esc(d.answer) + '</p>' +
+            (src ? '<div class="prov"><div class="minihead">Recalled from</div><ul class="provlist">' + src + '</ul></div>' : "");
+          status.textContent = d.state === "replay"
+            ? "the model was unreachable — this is a frozen answer, labelled"
+            : "answered live from memory";
+        }
+        async function go(q) {
+          input.value = q;
+          status.textContent = "recalling…";
+          box.innerHTML = "";
+          try {
+            var r = await fetch("/api/ask?q=" + encodeURIComponent(q));
+            draw(await r.json());
+          } catch (e) { status.textContent = "failed: " + e.message; }
+        }
+        document.getElementById("ask").addEventListener("click", function () { go(input.value); });
+        input.addEventListener("keydown", function (e) { if (e.key === "Enter") go(input.value); });
+        Array.prototype.forEach.call(document.querySelectorAll(".qchip"), function (b) {
+          b.addEventListener("click", function () { go(b.getAttribute("data-q")); });
+        });
+      })();
+      </script>`;
+    },
+  },
 ];
 
 // Edit this one constant at 10:30 with the judge's posted problem statement.

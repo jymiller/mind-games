@@ -23,7 +23,8 @@
     "check:ablation": "node check-ablation.mjs",
     "check:card": "node check-card.mjs",
     "check:gate": "node check-gate.mjs",
-    "check:drift": "node check-drift.mjs"
+    "check:drift": "node check-drift.mjs",
+    "check:openbox": "node check-openbox.mjs"
   },
   "dependencies": {
     "@xtraceai/memory": "^0.5.0"
