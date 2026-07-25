@@ -205,7 +205,7 @@ const server = createServer(async (req, res) => {
   }
   if (path === "/") {
     res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
-    return res.end(page(getScene("lane")));
+    return res.end(await page(getScene("lane")));
   }
   const m = path.match(/^\/scene\/([a-z0-9-]+)$/i);
   if (m) {
