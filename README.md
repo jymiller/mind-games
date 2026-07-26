@@ -42,7 +42,7 @@ and we're explicit about which of them we actually built:
 | | | Status |
 |---|---|---|
 | **Detection** | Deciding a restated figure *supersedes* the prior one rather than landing as a second, conflicting fact. | **Not ours.** The restatement is a later document that declares what it supersedes, ingested after the certificates. Automatic supersession is the open problem here, not a feature we claim. |
-| **Lineage** | The prior fact isn't overwritten. XTrace keeps it and links revisions (`getRevisions`, `src/xtrace.js`). | **Platform capability, not on screen.** Scene 5 would render it; not built. No as-of query in this build. |
+| **Lineage** | The prior fact isn't overwritten. What was believed, when, and what replaced it. | **Built, from documents — not from the platform's revision chain.** Scene 5 renders the lineage and states the difference on the page: `getRevisions` is queried live and returns a single node, because the extractor deduplicates any fact whose value it already holds, so no prior node is ever stored for a later one to supersede. Four attempts, documented in `scripts/build-chain.mjs`. No as-of query in this build. |
 | **Propagation** | Everything **derived** from a revised fact is **re-derived** — the ratio *and the verdict*. | **Built.** One pure `assess()` runs twice over the same period: once on the certified EBITDA, once on the revised one. Both the ratio and the verdict come back changed. |
 
 Propagation is the proof. You can hand-wave a storage layer. You can't hand-wave a conclusion that
@@ -52,20 +52,26 @@ noticed its input died and went back and re-derived itself.
 
 | | Scene | Status |
 |---|---|---|
-| 1 | **The Lane** | built — title card |
-| 2 | **The Recall** | built — the deal card, every row carrying its source |
+| 1 | **The Lane** | built — title card and the one-paragraph version |
+| 2 | **The Recall** | built — the deal card, every row carrying its source; empties rather than going stale |
+| 3 | **The Drift** | built — a renamed field caught on the field map; two real pipelines, opposite verdicts |
 | 4 | **The Flip** | built — recomputes live against XTrace; falls back to a frozen capture labelled `PRERUN` if the API is unreachable |
+| 5 | **The Chain** | built — lineage from the documents, with the platform's own chain depth queried live and reported as-is |
 | 6 | **The Ablation** | built — renders empty; scores arrive only from the live run you trigger |
-| 3 · 5 · 7 · 8 | The Drift · The Chain · The Gate · The Open Box | **not built** — each renders an explicit "Not built yet." placeholder |
+| 7 | **The Gate** | built — the agent proposes, a named human commits, hash-chained register |
+| 8 | **The Open Box** | built — free-text recall, `REPLAY` when the model is unreachable, and an honest "not in memory" |
 
-An empty seat beats a mock. Check this table against `GET /api/scenes`, and against the deployed
-instance, which may be a build behind.
+All eight run. Check this table against `GET /api/scenes`, and against the deployed instance, which
+may be a build behind.
 
 ## Verify it without trusting us
 
 ```bash
+npm run check             # all seven scene checks
 npm run check:flip        # 13 assertions — no API key needed (falls back to PRERUN)
 npm run check:ablation    # 8 assertions — pure, no network, no key
+npm run check:openbox     # 11 assertions — includes the wifi-kill test
+npm run check:gate        # 11 assertions — proves nothing writes before a human attests
 ```
 
 `check:flip` asserts the thing that matters: the certificate says COMPLIANT and `assess()` returns
@@ -94,13 +100,17 @@ product UI, not disclaimers.
 - **`SYNTHETIC DATA`** — invented. On every scene.
 - **`LIVE …`** (`LIVE RECOMPUTE`, `LIVE RECALL`, `LIVE EVAL`) — that effect fires for real when the
   scene runs.
-- **`PRERUN`** — a frozen capture standing in for a live call. If XTrace is unreachable, Scene 4 falls
-  back to a 25 Jul capture, says so in the body, and reports `"label":"PRERUN"` on `/api/flip`.
+- **`PRERUN`** / **`REPLAY`** — a frozen capture standing in for a live call. If XTrace is unreachable,
+  Scene 4 falls back to a 25 Jul capture, says so in the body, and reports `"label":"PRERUN"` on
+  `/api/flip`. Scene 8 does the same with `REPLAY`, and its frozen answers are *captured* from real
+  runs by `scripts/freeze-replay.mjs`, never hand-written.
+- **`NOT IN MEMORY`** — Scene 8's refusal state. Ask it something outside the corpus and it says so,
+  and names what it does cover, instead of producing something plausible.
 
-One rough edge, named rather than hidden: the label strip renders a scene's *declared* labels even
-above a "Not built yet." placeholder. Those are a declaration of what the scene does once it runs, not
-a claim that something just fired. `/api/scenes` returns `labels` and `built` together so you can check
-one against the other.
+Two rules the code enforces rather than promises. A scene that can't reach its data renders **empty**,
+never stale — `check:card` proves the deal card degrades to `NO MEMORY` when recall returns nothing.
+And a run that didn't complete shows **no score**: rate-limit a live ablation and it reports "no
+result" and why, because calls that never returned are not wrong answers.
 
 **All deal data is SYNTHETIC.** Thornwick, Halveston, Ardenmoor — every entity, person and figure is
 invented. No real borrower, no Enid IP. Nothing real fires on stage.

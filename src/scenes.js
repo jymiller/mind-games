@@ -55,13 +55,15 @@ export const SCENES = [
               is re-derived &mdash; not swapped, not appended. Scene 4 shows a compliant quarter becoming a
               breach from the same code path.</div></div>
             <div class="sbrow"><div class="sbk">Is it actually<br>working?</div><div class="sbv">
-              Four of the eight scenes are built and run live against the memory API. The other four say so
-              on screen rather than showing a mock. Two acceptance checks &mdash; 13 assertions and 8 &mdash;
-              pass with no API key at all: <code>npm run check:flip</code> and <code>npm run check:ablation</code>.</div></div>
+              All eight scenes are built and run live &mdash; Scenes 2, 4, 5, 6 and 8 against the memory API,
+              3 and 7 against local state. Every scene has an acceptance check written before its code:
+              <code>npm run check</code> runs all seven. Two of them &mdash; 13 assertions and 8 &mdash;
+              pass with no API key at all.</div></div>
             <div class="sbrow"><div class="sbk">What doesn't<br>work?</div><div class="sbv">
-              Four of eight scenes aren't built. Supersession is carried by the order documents were
-              ingested, not detected automatically &mdash; there are no revision chains in this corpus, which
-              is why Scene 5 is unbuilt and says why. And one fact didn't survive extraction: asked about it,
+              Supersession is carried by the order documents were ingested, not detected automatically.
+              Scene 5 says so on the page: its revision chain is reconstructed from documents, because the
+              extractor deduplicates any fact whose value it already holds, so no prior node is ever stored
+              for a later one to supersede. And one fact didn't survive extraction &mdash; asked about it,
               the memory answer refuses to guess rather than inventing a number.</div></div>
           </div>
         </details>
