@@ -68,8 +68,8 @@ async function pullRevision() {
     netDebtUnmoved: Boolean(unmoved),
     drivers: drivers
       ? [
-          { label: "Disallowed run-rate synergy add-back", amount: Number(drivers.m[2]) },
-          { label: "Revenue recognised too early (IFRS 15)", amount: Number(drivers.m[3]) },
+          { label: "Savings the company hoped to make, counted as profit", amount: Number(drivers.m[2]) },
+          { label: "Sales booked before they had been earned", amount: Number(drivers.m[3]) },
         ]
       : [],
     removed: drivers ? Number(drivers.m[1]) : null,
@@ -86,8 +86,8 @@ const FROZEN = {
   netDebtUnmoved: true,
   removed: 5.0,
   drivers: [
-    { label: "Disallowed run-rate synergy add-back", amount: 3.0 },
-    { label: "Revenue recognised too early (IFRS 15)", amount: 1.7 },
+    { label: "Savings the company hoped to make, counted as profit", amount: 3.0 },
+    { label: "Sales booked before they had been earned", amount: 1.7 },
   ],
   provenance: [
     { text: "The Thornwick Logistics Senior Facilities Agreement requires Total Net Debt to Adjusted EBITDA not to exceed 6.50:1 for Test Dates on or before 2026-12-31.", conv_id: "thornwick-01-credit-agreement", score: 1, type: "fact" },

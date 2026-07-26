@@ -32,23 +32,19 @@ export const SCENES = [
       <section class="card lane">
         <div class="eyebrow">deal-memory &middot; institutional memory for private credit</div>
         <h1>A 20-year loan outlives the loan officer.</h1>
-        <p class="sub">
-          A private-credit covenant lives 5&ndash;20 years. The officer who negotiated it is in the
-          seat about three. So the loan outlives the person &mdash; and the <em>reasons</em> leave
-          with them.
-        </p>
+        <p class="sub">The loan lasts twenty years. The banker who wrote it stays about three.
+        The <em>reasons</em> leave with them.</p>
         <div class="oneliner">
-          <p>A borrower certifies the quarter compliant. <b class="g">6.47&times;</b>, against a 6.50&times;
-          limit. Signed. Then the audit restates earnings. Debt never moves.</p>
-          <p>Same quarter, same covenant &mdash; <b class="r">7.59&times;</b>. A breach nobody filed.</p>
+          <p>A company promised its lender it would keep its debt under 6.50 times its yearly profit.
+          It reported <b class="g">6.47&times;</b> &mdash; just inside &mdash; and signed to say so.</p>
+          <p>Then the auditors cut the profit figure. The debt never moved. Same quarter, same promise:
+          <b class="r">7.59&times;</b>. A broken promise nobody ever filed.</p>
           <p class="ol-tail">The system doesn't just update the number. It goes back and re-derives the
           verdict that depended on it.</p>
         </div>
 
-        <p class="plain"><b>If you don't work in finance:</b> a <em>covenant</em> is a promise written into
-        a loan &mdash; keep this ratio below this number, or you're in default. Every quarter the borrower
-        files a certificate saying whether they kept it. Here the borrower said yes. The auditors later
-        cut the profit figure that the ratio was calculated from, which quietly made the answer no.</p>
+        <p class="plain"><b>Jargon, once:</b> a <em>covenant</em> is a promise in the loan &mdash; keep this
+        number under that number. Break it and the lender can act.</p>
 
         <blockquote id="judge-quote" class="quote">
           <span class="quote-label">Judge's question, 10:05 AM</span>
@@ -106,13 +102,9 @@ export const SCENES = [
       return withLabels(`
       <section class="card">
         <div class="eyebrow">Scene 2 &middot; The Recall &mdash; ${esc(c.deal)}</div>
-        <h1 class="flip-h">What the file knows, three officers later.</h1>
-        <p class="sub">Recalled live from the deal's memory. Every row carries the sentence it
-        came from &mdash; nothing here is typed into the page.</p>
-        <p class="plain"><b>In plain English:</b> this is what the loan file still remembers after the
-        person who negotiated it has gone &mdash; the promise the borrower made, what they last reported,
-        who signed it off, and where each line came from. Note the last row says everything is fine.
-        That is the claim Scene 4 breaks.</p>
+        <h1 class="flip-h">What the file still knows, three staff changes later.</h1>
+        <p class="plain"><b>The grey line under each row is the exact sentence it came from.</b>
+        Switch memory off and this card goes blank, not stale. Note the last row: everything looks fine.</p>
         <div class="cardrows">${rows}</div>
       </section>`,
         ["SYNTHETIC DATA", c.label, `${c.rows.length} ROWS RECALLED`],
@@ -141,12 +133,9 @@ export const SCENES = [
       <section class="card">
         <div class="eyebrow">Scene 3 &middot; The Drift &mdash; ${esc(d.q2.label)} vs ${esc(d.q3.label)}</div>
         <h1 class="flip-h">The borrower renamed a line. Nothing else changed.</h1>
-        <p class="plain"><b>In plain English:</b> every quarter the borrower sends a file of numbers.
-        This quarter they quietly renamed the earnings line from <code>ebitda</code> to
-        <code>adjusted_ebitda</code>. A normal pipeline goes looking for the name it knows, doesn't
-        find it, quietly reuses last quarter's number and reports that everything is fine. This one
-        compares the <em>shape</em> of the file against what it remembers, spots the rename, and uses
-        the real number.</p>
+        <p class="plain"><b>The borrower renamed the profit line.</b> An ordinary system can't find the
+        name it knows, quietly reuses last quarter's number, and stays green. This one remembers the
+        old names, so it notices.</p>
 
         <div class="twocol">
           <div>
@@ -158,13 +147,12 @@ export const SCENES = [
             <div class="fieldmap">${fieldList(d.q3.fields, d.q2.fields)}</div>
           </div>
         </div>
-        <p class="xcheck" style="margin-top:14px">Detected on the field names, never on the values &mdash;
-        a value-only comparison cannot tell &ldquo;renamed&rdquo; apart from &ldquo;missing&rdquo;, and
-        missing looks like nothing being wrong.</p>
+        <p class="xcheck" style="margin-top:14px">Caught on the names, not the numbers. Compare only
+        numbers and &ldquo;renamed&rdquo; looks exactly like &ldquo;missing&rdquo;.</p>
 
         <div class="flipgrid" style="margin-top:22px">
           <div class="panel green">
-            <div class="pcap" style="font-style:normal;margin:0 0 8px">Value-only pipeline</div>
+            <div class="pcap" style="font-style:normal;margin:0 0 8px">An ordinary system</div>
             <div class="num">${x2(d.naive.ratio)}&times;</div>
             <div class="verdict">${esc(d.naive.verdict)}</div>
             <div class="calc">used &pound;${x2(d.naive.ebitda)}m &mdash; last quarter's number</div>
@@ -172,7 +160,7 @@ export const SCENES = [
           </div>
           <div class="arrow">vs</div>
           <div class="panel red">
-            <div class="pcap" style="font-style:normal;margin:0 0 8px">Field-map pipeline</div>
+            <div class="pcap" style="font-style:normal;margin:0 0 8px">One that remembers last quarter</div>
             <div class="num">${x2(d.smart.ratio)}&times;</div>
             <div class="verdict">${esc(d.smart.verdict)}</div>
             <div class="calc">used &pound;${x2(d.smart.ebitda)}m &mdash; from <code>${esc(d.smart.usedField)}</code></div>
@@ -181,7 +169,7 @@ export const SCENES = [
         </div>
 
         <div class="proposal">
-          <div class="minihead">Written back, so it is never worked out twice</div>
+          <div class="minihead">Written down, so nobody has to work it out again</div>
           <p class="pbasis" style="margin:0">${esc(d.lesson)}</p>
         </div>
       </section>`;
@@ -206,7 +194,7 @@ export const SCENES = [
       return withLabels(`
       <section class="card">
         <div class="eyebrow">Scene 4 &middot; The Flip &mdash; ${esc(f.deal)} &middot; ${esc(f.restated.period)}</div>
-        <h1 class="flip-h">Same quarter. Same covenant. Opposite verdict.</h1>
+        <h1 class="flip-h">Same quarter. Same rule. Opposite answer.</h1>
         ${f.note ? `<p class="todo-note">${esc(f.note)}</p>` : ""}
 
         <div class="flipgrid">
@@ -214,30 +202,24 @@ export const SCENES = [
             <div class="num">${x2(f.certificate.ratio)}&times;</div>
             <div class="verdict">Compliant</div>
             <div class="calc">${x2(f.certificate.netDebt)} &divide; ${x2(f.certificate.ebitda)} &nbsp;vs cap ${x2(f.threshold)}&times;</div>
-            <div class="pcap">as the borrower certified it</div>
+            <div class="pcap">what the borrower reported, and signed</div>
           </div>
           <div class="arrow">&rarr;</div>
           <div class="panel red">
             <div class="num">${x2(f.restated.ratio)}&times;</div>
             <div class="verdict">Breach</div>
             <div class="calc">${x2(f.restated.netDebt)} &divide; ${x2(f.restated.ebitda)} &nbsp;vs cap ${x2(f.threshold)}&times;</div>
-            <div class="pcap">re-derived on what memory knows now</div>
+            <div class="pcap">worked out again, on the corrected profit</div>
           </div>
         </div>
 
-        <p class="plain"><b>In plain English:</b> the borrower promised to keep its debt under
-        ${x2(f.threshold)}&times; its yearly profit. It reported ${x2(f.certificate.ratio)}&times; &mdash; just
-        inside &mdash; and signed a certificate saying so. Its auditors then decided
-        &pound;${(f.removed ?? 0).toFixed(1)}m of that profit didn't count. The debt never changed. On the
-        corrected profit the same quarter is ${x2(f.restated.ratio)}&times; &mdash; well over the limit, and
-        nobody had filed it.</p>
+        <p class="plain"><b>The limit was ${x2(f.threshold)}&times;. The borrower reported
+        ${x2(f.certificate.ratio)}&times; and signed.</b> Auditors then cut
+        &pound;${(f.removed ?? 0).toFixed(1)}m of profit. Debt never moved. Same quarter:
+        ${x2(f.restated.ratio)}&times;.</p>
 
-        <p class="sub">
-          Nothing was overwritten. <em>One</em> <code>assess()</code> ran twice &mdash; same function, same
-          period, same debt of &pound;${x2(f.restated.netDebt)}m. Only the profit figure changed, because the
-          audit revised it after the certificate was signed. The conclusion is <em>re-derived</em>, and a
-          quarter that closed green is now a breach.
-        </p>
+        <p class="sub">Same calculation, run twice. Only the profit changed &mdash; so the answer was
+        worked out again, not edited.</p>
 
         <div class="twocol">
           <div>
@@ -248,18 +230,19 @@ export const SCENES = [
             </table>
           </div>
           <div>
-            <div class="minihead">Independent cross-check</div>
-            <p class="xcheck">We computed <b>${x2(f.restated.ratio)}&times;</b> from the revised inputs.
-            Memory separately stores the restated ratio as
-            <b>${f.corroboration.memoryRatio === null ? "&mdash;" : x2(f.corroboration.memoryRatio) + "&times;"}</b>.
-            ${f.corroboration.memoryRatio === f.restated.ratio ? "They agree &mdash; the number was re-derived, not copied." : "They differ &mdash; shown as-is rather than reconciled."}</p>
-            <p class="xcheck">Certificate's own printed ratio: <b>${x2(f.certificate.claimedRatio)}&times;</b>,
-            signed off <span class="dim">${esc(f.certificate.source)}</span>.</p>
+            <div class="minihead">Marking our own homework</div>
+            <p class="xcheck">We divided debt by corrected profit and got
+            <b>${x2(f.restated.ratio)}&times;</b>. Memory stores that figure separately as
+            <b>${f.corroboration.memoryRatio === null ? "&mdash;" : x2(f.corroboration.memoryRatio) + "&times;"}</b>
+            and we never read it.
+            ${f.corroboration.memoryRatio === f.restated.ratio ? "They match &mdash; so it was genuinely recalculated." : "They differ; both shown as-is."}</p>
+            <p class="xcheck">The borrower's own printed figure, <b>${x2(f.certificate.claimedRatio)}&times;</b>,
+            is read from <span class="dim">${esc(f.certificate.source)}</span> &mdash; never typed here.</p>
           </div>
         </div>
 
         <div class="prov">
-          <div class="minihead">Provenance &mdash; every revised figure above, as recalled from memory</div>
+          <div class="minihead">Where each corrected number came from &mdash; the exact sentences recalled from memory</div>
           <ul class="provlist">${prov}</ul>
         </div>
       </section>`,
@@ -299,22 +282,19 @@ export const SCENES = [
       return `
       <section class="card">
         <div class="eyebrow">Scene 5 &middot; The Chain &mdash; ${esc(c.deal)}</div>
-        <h1 class="flip-h">Nothing is deleted. It is superseded, and the pointer is kept.</h1>
-        <p class="plain"><b>In plain English:</b> the old number does not vanish when a new one
-        arrives. The file keeps what was believed, when it was believed, and what replaced it &mdash;
-        so you can still ask what the lender thought in May and why they thought it. In a regulated
-        business that trail is not a nice-to-have; it is the product.</p>
+        <h1 class="flip-h">The old number doesn't disappear. It gets crossed out.</h1>
+        <p class="plain"><b>Wrong numbers stay on the record, crossed out.</b> So you can still answer
+        the question a regulator asks: what did you believe in May, and why?</p>
 
         <div class="chainwrap">${nodes}</div>
 
         <div class="blocked">
-          <b>Where this lineage comes from, precisely.</b> The nodes above are reconstructed from the
-          documents held in memory, and each carries the sentence it came from. They are
-          <em>not</em> the memory platform's own revision chain: we queried
-          <code>GET /v1/memories/{id}/revisions</code> live for ${c.platform.checked} of these
-          memories just now and the deepest chain returned is
-          <b>${c.platform.maxNodes} node${c.platform.maxNodes === 1 ? "" : "s"}</b>.
-          ${esc(c.caveat)}
+          <b>Being precise about this.</b> The timeline is built from the documents in memory, not from
+          the memory platform's own revision chain. We queried that chain live for
+          ${c.platform.checked} of these memories just now: deepest result
+          <b>${c.platform.maxNodes} node${c.platform.maxNodes === 1 ? "" : "s"}</b>. Forcing a real one
+          was tried on both borrowers and failed &mdash; the extractor drops any fact whose value it
+          already holds, so no earlier version is ever stored to supersede.
         </div>
       </section>`;
     },
@@ -338,11 +318,10 @@ export const SCENES = [
       ).join("");
       return `
       <section class="card">
-        <div class="eyebrow">Scene 6 &middot; The Ablation</div>
+        <div class="eyebrow">Scene 6 &middot; The Ablation &mdash; take one thing away and see what breaks</div>
         <h1 class="flip-h">Does the memory actually change the answer?</h1>
-        <p class="sub">Five questions about this deal, asked twice. Once with the deal's memory
-        in front of the model, once without it. Same model, same questions, same wording &mdash;
-        the memory is the only thing that changes.</p>
+        <p class="sub">Five questions, asked twice &mdash; with the memory, then without.
+        Nothing else changes.</p>
 
         <div class="board">
           <div class="armbox green">
@@ -361,25 +340,18 @@ export const SCENES = [
           </div>
         </div>
 
-        <p class="plain"><b>How to read it:</b> each row is one question. The left tick is the answer
-        <em>with</em> the memory, the right one is the same question <em>without</em> it. PASS means the
-        answer actually contained the right figures &mdash; the answer itself is printed underneath, so you
-        can check the marking yourself.</p>
+        <p class="plain"><b>PASS means the answer contained the right figures.</b> Each answer is printed
+        underneath, so you can check the marking yourself.</p>
 
         <table class="qtable">
           <thead><tr><th></th><th>Question</th><th class="cell">With</th><th class="cell">Without</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
 
-        <p class="sub" style="margin-top:24px">
-          This measures whether the answers are <em>right</em> &mdash; not whether they are fast or cheap.
-          Every score you see was counted from the run you just watched; nothing is saved from earlier.
-        </p>
-        <p class="xcheck">
-          Said plainly: this is an invented company, so without the memory the model has nothing to go on.
-          That is exactly the thing being measured &mdash; whether the answers come from the memory or from
-          the model. It is not a claim that the model is weak.
-        </p>
+        <p class="sub" style="margin-top:24px">Accuracy, not speed. Every score is counted from the run
+        you just watched.</p>
+        <p class="xcheck">The company is invented, so without memory there is nothing to go on &mdash;
+        which is the point being measured, not a claim that the model is weak.</p>
       </section>
 
       <script>
@@ -461,15 +433,14 @@ export const SCENES = [
       <section class="card">
         <div class="eyebrow">Scene 7 &middot; The Gate</div>
         <h1 class="flip-h">It found the breach. It is not allowed to file it.</h1>
-        <p class="plain"><b>In plain English:</b> deciding that a borrower has broken its loan terms is
-        a legal act with consequences. The software can work out that it happened &mdash; it is not
-        allowed to be the one who says so. It writes up what it wants to do and stops, and a named
-        person has to sign before anything is recorded.</p>
+        <p class="plain"><b>Calling a default is a legal act.</b> The software works it out, then stops.
+        A named person signs, or nothing is recorded.</p>
 
         <div class="proposal">
-          <div class="minihead">What the agent proposes</div>
+          <div class="minihead">What the software wants to do</div>
           <p class="pact">${esc(p.action)}</p>
           <p class="pbasis">${esc(p.basis)}</p>
+          <p class="pbasis"><em>Plainly:</em> a letter formally telling the borrower they are in default.</p>
           <div class="denied">${esc(p.authority)} &mdash; ${esc(p.reason)}</div>
         </div>
 
@@ -534,11 +505,8 @@ export const SCENES = [
       <section class="card">
         <div class="eyebrow">Scene 8 &middot; The Open Box</div>
         <h1 class="flip-h">Ask the deal anything.</h1>
-        <p class="plain"><b>In plain English:</b> type a question about the loan and it answers from
-        what it remembers, showing you the sentences it used. Ask something it was never told and it
-        says so &mdash; it will not invent an answer to look clever. If the model is unreachable it
-        falls back to an answer captured earlier and labels it <em>REPLAY</em>, so you always know
-        whether you are seeing something live.</p>
+        <p class="plain"><b>It answers from memory, or admits it doesn't know.</b> It never invents.
+        Try the last chip &mdash; that one is deliberately outside what it was told.</p>
 
         <div class="attestrow">
           <input class="attestin" id="q" type="text" autocomplete="off"
