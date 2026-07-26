@@ -127,6 +127,58 @@ So the build process can't influence how the application reasons:
 `searchDomain()` in `src/xtrace.js` hardcodes the domain scope, so a caller can't accidentally issue an
 unscoped search — that's the one path by which a build note could reach covenant recall.
 
+## A system of record, and what measuring it found
+
+Built after the hackathon, and **the web app does not depend on it** — `server.js` never imports the
+database, `pg` is a dev dependency, and every scene runs without Postgres anywhere. This slice exists
+to answer a narrower question: if a relational database holds the truth and memory holds a *copy*, how
+faithful is the copy?
+
+```
+db/schema.sql          borrowers, covenants with effective dates, certificates,
+                       restatements, amendments — the truth
+scripts/sync-memory.mjs  renders each row as a canonical sentence, ingests it,
+                       and records the mapping in memory_sync
+scripts/eval-memory.mjs  probes memory for every measurement and scores the answer
+                       against the database
+db/eval.sql            eval_run / eval_result — runs accumulate so they can be compared
+```
+
+Each fact carries a `fact_key` of `entity : attribute : valid-time`. That key is the whole trick: with
+identity supplied, a changed value in Postgres **is** a revision event, so supersession is a unique
+constraint rather than a hope that an extractor notices. Four hackathon attempts to force a revision
+chain by phrasing alone had failed; with a key it worked first time.
+
+**First run — 26 measurements, deterministic scoring, no model judging anything:**
+
+| | |
+|---|---:|
+| answered with the value the database currently holds | **17 / 26** |
+| never reached memory at all (write-side loss) | 6 |
+| in memory but the probe returned something else | 3 |
+| **stale** — returned a value the database had replaced | **0** |
+| **contradictory** — returned both old and new | **0** |
+
+Zero stale and zero contradictory is the result worth having: where identity was supplied, memory never
+answered a question two ways. The six that never landed share a pattern — they collide on *value* with
+another fact while differing in *valid-time*, so what was lost wasn't the number but which quarter it
+belonged to.
+
+**This is not a vendor scorecard, and shouldn't be read as one.** It measures a whole pipeline — our
+sentence encoding, their extraction, their retrieval, our scoring — at n=26, in one search mode, on
+synthetic data. Attributing the 9 failures to any one stage would need arms we haven't run. The finding
+worth keeping is mechanistic: **a memory layer individuates by what it can see in the text, so identity
+has to be supplied rather than inferred.**
+
+```bash
+docker run -d --name deal-memory-pg -e POSTGRES_USER=deal_memory \
+  -e POSTGRES_PASSWORD=deal_memory -e POSTGRES_DB=deal_memory -p 5544:5432 postgres:16-alpine
+# then set DATABASE_URL in .env
+npm run db:seed       # schema + the Thornwick and Halveston corpus
+npm run memory:sync   # push the source of truth into its own memory scope
+npm run eval          # score memory against the database
+```
+
 ## Run it
 
 ```bash
