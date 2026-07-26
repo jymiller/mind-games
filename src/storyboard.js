@@ -59,8 +59,12 @@ export const STORYBOARD = {
     mech: "Non-monotonic belief update with retraction and lineage. Retrieval is monotonic append.",
     check: "A query as-of a past date returns only facts active at that time; superseded facts return marked, not hidden.",
     who: ["Jiao · the mechanism", "Mazumdar · audit"],
-    blocked:
-      "Needs a supersession chain in the corpus. Probed 25 Jul: 100 domain memories, ZERO multi-node chains — the restatement was ingested as new facts rather than as a supersession of the originals, so getRevisions() would render an empty chain. Fix is a canonical re-ingest (same sentence, new value), not a UI change.",
+    // BUILT — but not the way this storyboard imagined. The canonical re-ingest was attempted
+    // on both borrowers and failed: the extractor drops any fact whose value it already holds,
+    // so no earlier version is ever stored for a later one to supersede, and the revisions
+    // endpoint keeps returning a single node. Scene 5 therefore reconstructs the lineage from
+    // the documents and states that on the page, with the measured chain depth in its label.
+    // See scripts/build-chain.mjs for the experiment.
   },
   ablation: {
     time: "1:45 – 2:05",
