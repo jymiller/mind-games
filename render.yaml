@@ -1,8 +1,17 @@
-# Render Blueprint — deploys the Deal Memory web service.
-# Dashboard → New → Blueprint → connect jymiller/mind-games → Render reads this file → Apply.
+# Render Blueprint — the Deal Memory web service AND its Postgres database.
 #
-# No secret values live here. Every key is `sync: false`, which means "prompt me in the
-# dashboard" — Render stores the value, git never sees it.
+# Dashboard → New → Blueprint → connect jymiller/mind-games → Render reads this file → Apply.
+# Applying it creates both, and injects the database connection string into the service, so
+# no database credential is ever typed, stored in git, or pasted into a dashboard.
+#
+# The `sync: false` keys are the only ones Render prompts for. Nothing secret lives here.
+databases:
+  - name: deal-memory-db
+    databaseName: deal_memory
+    user: deal_memory
+    plan: free # NOTE: Render expires free Postgres instances after 30 days. Upgrade before then.
+    region: oregon
+
 services:
   - type: web
     name: deal-memory
@@ -14,10 +23,14 @@ services:
     healthCheckPath: /healthz
     autoDeploy: true
     envVars:
-      # XTrace Memory — domain memory (covenants, supersession, revision chain).
+      # Postgres — the SOURCE OF TRUTH. Render injects this; it is never entered by hand.
+      # Memory holds a derived copy, and the gap between them is what we measure.
+      - key: DATABASE_URL
+        fromDatabase:
+          name: deal-memory-db
+          property: connectionString
+      # XTrace Memory — the derived copy (covenants, revisions, recall).
       - key: XTRACE_API_KEY
-        sync: false
-      - key: XTRACE_ORG_ID
         sync: false
       # Novita — inference for the ablation (scene 6) and free-text recall (scene 8).
       - key: NOVITA_API_KEY

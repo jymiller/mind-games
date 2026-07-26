@@ -27,9 +27,14 @@
     "check:openbox": "node check-openbox.mjs",
     "check:chain": "node check-chain.mjs",
     "check": "for c in flip ablation card gate drift openbox chain voice; do npm run -s check:$c || exit 1; done",
-    "check:voice": "node check-voice.mjs"
+    "check:voice": "node check-voice.mjs",
+    "db:migrate": "node db/migrate.mjs",
+    "db:seed": "node db/migrate.mjs --seed",
+    "memory:sync": "node scripts/sync-memory.mjs",
+    "eval": "node scripts/eval-memory.mjs"
   },
   "dependencies": {
-    "@xtraceai/memory": "^0.5.0"
+    "@xtraceai/memory": "^0.5.0",
+    "pg": "^8.22.0"
   }
 }
