@@ -45,13 +45,7 @@ font-size:12.5px;text-decoration:none;white-space:nowrap}
 .chip.todo b{color:var(--dim)}
 .livedot{width:7px;height:7px;border-radius:50%;background:var(--green);flex:0 0 auto;
 box-shadow:0 0 7px -1px var(--green)}
-.livedot.local{background:var(--accent);box-shadow:0 0 7px -1px var(--accent)}
-.livedot.static{background:#4a5361;box-shadow:none}
-.chip.ready.local{border-color:#243a55;background:#0e141b}
-.chip.ready.local b{color:var(--accent)}
-.chip.ready.static{border-color:var(--line);background:var(--panel)}
-.chip.ready.static b{color:var(--dim)}
-.striplegend .livedot{margin-left:10px}
+.livedot.off{background:#3a424c;box-shadow:none}
 .striplegend{display:inline-flex;align-items:center;gap:7px;color:var(--dim);font-size:11.5px;
 padding:7px 4px;white-space:nowrap}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:34px}
@@ -255,21 +249,22 @@ function labelClass(l) {
 // The strip has to be readable at a glance from a laptop on a table: a live scene must be
 // obviously clickable, a storyboard-only one obviously not. Nobody should burn a judge's
 // attention opening a page that has no implementation behind it.
-// A dot per scene, and the dot means something specific. Green = this page queries the
-// memory API on load. Blue = built and running, but over local state only. Grey = static.
-// One green dot for everything would have been a nicer picture and a worse claim.
+// The dot answers the question a coloured dot in a nav strip is actually read as: does this
+// page work? Green = built and running. Grey and dashed = notes only, nothing behind it.
+// It previously encoded the DATA SOURCE, which was true but answered a question nobody was
+// asking — so it read as "the grey ones are broken". Source moved to the status bar.
 function strip(activeId) {
-  const mem = SCENES.filter((s) => s.built && s.source === "memory").length;
-  const local = SCENES.filter((s) => s.built && s.source === "local").length;
-  const chips = SCENES.map((s) => {
-    const dot = s.built ? `<span class="livedot ${esc(s.source || "static")}"></span>` : "";
-    return `<a class="chip ${s.id === activeId ? "on" : ""} ${s.built ? "ready" : "todo"} ${esc(s.source || "")}" href="/scene/${s.id}">` +
-      `${dot}<b>${s.n}</b> ${esc(s.title)}${s.built ? "" : " &middot; storyboard"}</a>`;
-  }).join("");
-  return `${chips}<span class="striplegend">
-    <span class="livedot memory"></span> ${mem} live from memory
-    <span class="livedot local"></span> ${local} local
-    <span class="livedot static"></span> 1 static</span>`;
+  const built = SCENES.filter((s) => s.built).length;
+  const chips = SCENES.map(
+    (s) =>
+      `<a class="chip ${s.id === activeId ? "on" : ""} ${s.built ? "ready" : "todo"}" href="/scene/${s.id}">` +
+      `<span class="livedot ${s.built ? "on" : "off"}"></span><b>${s.n}</b> ${esc(s.title)}` +
+      `${s.built ? "" : " &middot; notes only"}</a>`,
+  ).join("");
+  const note = built === SCENES.length
+    ? `all ${built} built and running`
+    : `${built} of ${SCENES.length} built &middot; ${SCENES.length - built} notes only`;
+  return `${chips}<span class="striplegend"><span class="livedot on"></span> ${note}</span>`;
 }
 
 // Storyboard rows. Design intent only — never a source of figures for a live screen.
@@ -464,7 +459,7 @@ async function page(scene) {
   </div>
   <nav class="strip">${strip(scene.id)}</nav>
   ${scene.built ? `<div class="statusbar">${labels.map((l) => `<span class="${labelClass(l)}">${esc(l)}</span>`).join("")}
-    <span class="statushint">what this page is actually doing, right now</span></div>` : ""}
+    <span class="statushint">${esc(scene.hint || "what this page is doing, right now")}</span></div>` : ""}
   ${body}
   ${scene.built ? directorNote(scene) : ""}
   <div class="labels">${
