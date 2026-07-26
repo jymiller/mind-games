@@ -13,6 +13,8 @@ const client = await db().connect();
 try {
   console.log("applying db/schema.sql …");
   await client.query(file("schema.sql"));
+  console.log("applying db/eval.sql (evaluation tables persist across migrations) …");
+  await client.query(file("eval.sql"));
   if (withSeed) {
     console.log("applying db/seed.sql …");
     await client.query(file("seed.sql"));

@@ -50,6 +50,15 @@ export async function req(method, path, body) {
 // user_id + app_id (mg-build / mind-games-build) and is never read from here.
 export const DOMAIN_SCOPE = { user_id: "deal-memory", app_id: "deal-memory-domain" };
 
+// A separate scope for the evaluation. The domain corpus was ingested by hand over a
+// hackathon day and carries that history; an evaluation needs a corpus whose entire contents
+// are known, derived from Postgres, and reproducible from scratch. Mixing the two would make
+// every number unarguable in the wrong direction.
+export const EVAL_SCOPE = { user_id: "deal-memory", app_id: "deal-memory-eval" };
+
+export const searchScope = (scope, query, limit = 8, mode = "compose") =>
+  search({ ...scope, query, limit, mode });
+
 // --- endpoints --------------------------------------------------------------
 export const ingest = (body) => req("POST", "/v1/memories", body);
 export const search = (body) => req("POST", "/v1/memories/search", body);
