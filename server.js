@@ -12,6 +12,7 @@ import { getFlip } from "./src/deal.js";
 import { runAblation } from "./src/ablation.js";
 import { getStoryboard } from "./src/storyboard.js";
 import { attest, register } from "./src/gate.js";
+import { parseCommand, resolveTarget, EXAMPLES } from "./src/voice.js";
 import { ask } from "./src/openbox.js";
 import { redact } from "./src/redact.js";
 
@@ -75,6 +76,24 @@ background:#0f1318;border:1px solid var(--line);border-radius:10px}
 .statusbar .label.live{background:#0f1a14}
 .statusbar .label.replay{background:#1a1408}
 .statushint{color:#66717f;font-size:11.5px;margin-left:auto}
+.voicewrap{position:fixed;right:18px;bottom:18px;z-index:50;display:flex;flex-direction:column;
+align-items:flex-end;gap:9px;max-width:min(380px,calc(100vw - 36px))}
+.micbtn{display:inline-flex;align-items:center;gap:9px;background:var(--accent);color:#08131f;
+border:0;border-radius:999px;padding:13px 20px;font:inherit;font-size:14.5px;font-weight:700;
+cursor:pointer;box-shadow:0 10px 26px -10px rgba(0,0,0,.9)}
+.micbtn:disabled{background:var(--panel);color:var(--dim);cursor:not-allowed}
+.micdot{width:9px;height:9px;border-radius:50%;background:#08131f;flex:0 0 auto}
+.voicewrap.listening .micbtn{background:var(--red);color:#fff}
+.voicewrap.listening .micdot{background:#fff;animation:micpulse 1.1s ease-in-out infinite}
+@keyframes micpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(1.5)}}
+.voicebody{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:11px 13px;
+order:-1;width:100%}
+.voiceheard{color:var(--ink);font-size:13px;line-height:1.5}
+.voiceheard b{color:var(--dim);font-weight:600}
+.voicehints{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.voicehints span{color:var(--dim);font-size:11px;border:1px solid var(--line);border-radius:999px;padding:2px 8px}
+@media (prefers-reduced-motion:reduce){.voicewrap.listening .micdot{animation:none}}
+@media (max-width:600px){.voicehints{display:none}}
 @media (max-width:640px){.statushint{display:none}}
 .label.replay{color:var(--amber);border-color:#4a3a1e}
 .todo-note{color:var(--dim);margin-top:12px;font-size:14.5px}
@@ -304,6 +323,107 @@ function directorNote(scene) {
     </details>`;
 }
 
+// The voice panel. Speech recognition runs in the browser; the app only decides what a
+// phrase MEANS (/api/voice). Rendered on every page so you can steer from anywhere.
+function voicePanel(sceneId) {
+  return `
+  <div class="voicewrap">
+    <button class="micbtn" id="mic" title="Hold a conversation with the deal">
+      <span class="micdot"></span><span id="miclabel">Talk to it</span>
+    </button>
+    <div class="voicebody">
+      <div class="voiceheard" id="voiceheard">Press it and say &ldquo;show me the flip&rdquo;.</div>
+      <div class="voicehints" id="voicehints">${EXAMPLES.map((e) => `<span>&ldquo;${esc(e)}&rdquo;</span>`).join("")}</div>
+    </div>
+  </div>
+  <script>
+  (function () {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var btn = document.getElementById("mic");
+    var label = document.getElementById("miclabel");
+    var heard = document.getElementById("voiceheard");
+    var wrap = document.querySelector(".voicewrap");
+    var scene = ${JSON.stringify(sceneId)};
+
+    if (!SR) {
+      label.textContent = "No voice in this browser";
+      btn.disabled = true;
+      heard.textContent = "This browser has no speech recognition. Chrome, Edge and Safari do.";
+      return;
+    }
+
+    var rec = new SR();
+    rec.continuous = false;
+    rec.interimResults = true;
+    rec.lang = "en-GB";
+    var listening = false;
+
+    function setListening(on) {
+      listening = on;
+      wrap.classList.toggle("listening", on);
+      label.textContent = on ? "Listening…" : "Talk to it";
+    }
+    function say(text) {
+      try {
+        var u = new SpeechSynthesisUtterance(text);
+        u.rate = 1.03;
+        speechSynthesis.cancel();
+        speechSynthesis.speak(u);
+      } catch (e) { /* speaking is a nicety, never a requirement */ }
+    }
+    function pageText() {
+      var card = document.querySelector("section.card");
+      if (!card) return "Nothing to read on this page.";
+      return card.innerText.replace(/\\s+/g, " ").slice(0, 700);
+    }
+
+    async function act(phrase) {
+      heard.innerHTML = '<b>Heard:</b> &ldquo;' + phrase + '&rdquo;';
+      var r = await fetch("/api/voice?scene=" + encodeURIComponent(scene) + "&q=" + encodeURIComponent(phrase));
+      var d = await r.json();
+      if (d.intent === "navigate" || d.intent === "next" || d.intent === "prev") {
+        if (d.target) { heard.innerHTML += " &rarr; going there"; location.href = d.target; }
+        else heard.innerHTML += " &rarr; already at the end";
+        return;
+      }
+      if (d.intent === "run") {
+        var runner = document.getElementById("run-ablation");
+        if (runner) { heard.innerHTML += " &rarr; running it"; runner.click(); }
+        else { location.href = "/scene/ablation#run"; }
+        return;
+      }
+      if (d.intent === "ask") {
+        if (scene === "openbox") { location.hash = "#q=" + encodeURIComponent(d.question); location.reload(); }
+        else location.href = "/scene/openbox#q=" + encodeURIComponent(d.question);
+        return;
+      }
+      if (d.intent === "speak") { heard.innerHTML += " &rarr; reading it out"; say(pageText()); return; }
+      if (d.intent === "stop") { rec.stop(); setListening(false); speechSynthesis.cancel(); return; }
+      heard.innerHTML = '<b>Didn\\'t understand:</b> &ldquo;' + (d.heard || phrase) + '&rdquo;. Nothing happened.';
+    }
+
+    rec.onresult = function (e) {
+      var last = e.results[e.results.length - 1];
+      var phrase = last[0].transcript.trim();
+      if (!last.isFinal) { heard.innerHTML = '<span class="dim">' + phrase + '…</span>'; return; }
+      act(phrase);
+    };
+    rec.onerror = function (e) {
+      setListening(false);
+      heard.textContent = e.error === "not-allowed"
+        ? "Microphone permission was refused, so voice is off."
+        : "Voice stopped: " + e.error;
+    };
+    rec.onend = function () { setListening(false); };
+
+    btn.addEventListener("click", function () {
+      if (listening) { rec.stop(); setListening(false); return; }
+      try { rec.start(); setListening(true); } catch (e) { setListening(false); }
+    });
+  })();
+  </script>`;
+}
+
 async function page(scene) {
   let body;
   let labels = scene.labels;
@@ -355,7 +475,7 @@ async function page(scene) {
       : scene.labels.map((l) => `<span class="label planned">planned: ${esc(l)}</span>`).join("")
   }</div>
   <footer>All entities and figures are SYNTHETIC and invented. Enid is the use case, not an integration.</footer>
-</div></body></html>`;
+</div>${voicePanel(scene.id)}</body></html>`;
 }
 
 function readBody(req) {
@@ -386,6 +506,16 @@ const server = createServer(async (req, res) => {
   if (path === "/api/flip") {
     try { return json(res, 200, await getFlip()); }
     catch (e) { return json(res, 502, { error: e.message }); }
+  }
+  if (path === "/api/voice") {
+    try {
+      const heard = url.searchParams.get("q") || "";
+      const cmd = parseCommand(heard, { currentScene: url.searchParams.get("scene") || null });
+      const target = resolveTarget(cmd, url.searchParams.get("scene") || "lane");
+      return json(res, 200, { ...cmd, target, examples: EXAMPLES });
+    } catch (e) {
+      return json(res, 502, { error: redact(e.message) });
+    }
   }
   if (path === "/api/ask") {
     try { return json(res, 200, await ask(url.searchParams.get("q") || "")); }

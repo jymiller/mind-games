@@ -364,6 +364,8 @@ export const SCENES = [
         function badge(pass) {
           return '<span class="badge ' + (pass ? "pass" : "fail") + '">' + (pass ? "PASS" : "FAIL") + "</span>";
         }
+        // "run the test" spoken from another page lands here as #run.
+        if (location.hash === "#run") setTimeout(function () { btn.click(); }, 300);
         btn.addEventListener("click", async function () {
           btn.disabled = true;
           status.textContent = "running 10 live model calls, please wait…";
@@ -565,6 +567,12 @@ export const SCENES = [
         }
         document.getElementById("ask").addEventListener("click", function () { go(input.value); });
         input.addEventListener("keydown", function (e) { if (e.key === "Enter") go(input.value); });
+        // A spoken question arrives as #q=... from the voice panel on another page.
+        if (location.hash.indexOf("#q=") === 0) {
+          var spoken = decodeURIComponent(location.hash.slice(3));
+          input.value = spoken;
+          go(spoken);
+        }
         Array.prototype.forEach.call(document.querySelectorAll(".qchip"), function (b) {
           b.addEventListener("click", function () { go(b.getAttribute("data-q")); });
         });
