@@ -30,8 +30,8 @@ const offline = execFileSync(
   { cwd: process.cwd(), env: { ...process.env, XTRACE_BASE_URL: "http://127.0.0.1:9", NOVITA_API_KEY: "", NOVITA_MODEL: "" }, encoding: "utf8" },
 ).trim().split("\n").pop();
 const off = JSON.parse(offline);
-ok(off.state === "replay", `with the network down the answer comes from replay (state: ${off.state})`);
-ok(off.label === "REPLAY", "and it is visibly labelled REPLAY, never presented as live");
+ok(off.state === "replay", `with the network down the answer comes from a frozen capture (state: ${off.state})`);
+ok(off.label === "PRERUN", "and it is visibly labelled PRERUN, never presented as live");
 ok(off.hasAnswer === true, "an answer is still produced offline");
 ok(typeof off.captured === "string", `the replay states when it was captured (${off.captured})`);
 

@@ -6,10 +6,16 @@
 //
 // The card reads COMPLIANT 6.47x. That is the trap Scene 4 springs.
 import { searchDomain } from "./xtrace.js";
+import { loadCapture, LIVE, PRERUN } from "./frozen.js";
 
 // The fetcher is injectable so the acceptance check can prove the empty-not-stale
 // property without reaching past searchDomain() into a raw search().
-export async function getCard(fetcher = searchDomain) {
+//
+// `frozen` controls the fallback. With memory unreachable the card would otherwise be blank,
+// which is honest but useless; instead it renders a captured earlier run labelled PRERUN.
+// Pass { frozen: false } to see the raw empty result — the acceptance check does, so the
+// empty-not-stale property is still proven.
+export async function getCard(fetcher = searchDomain, { frozen = true } = {}) {
   const pull = async (query, re, build) => {
     try {
       const r = await fetcher(query, 8);
@@ -56,5 +62,13 @@ export async function getCard(fetcher = searchDomain) {
     ])
   ).filter(Boolean);
 
-  return { label: rows.length ? "LIVE RECALL" : "NO MEMORY", deal: "Thornwick Logistics Holdings Limited", rows };
+  const deal = "Thornwick Logistics Holdings Limited";
+  if (rows.length) return { label: LIVE, source: "memory", deal, rows };
+
+  // Nothing came back. Fall back to a captured run if we have one, and say so.
+  if (frozen) {
+    const cap = loadCapture("card");
+    if (cap) return { ...cap.data, label: PRERUN, capturedAt: cap.capturedAt };
+  }
+  return { label: "NO MEMORY", source: "memory", deal, rows: [] };
 }

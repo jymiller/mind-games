@@ -15,17 +15,23 @@
 // revision-chain result is queried live and reported as-is, however unimpressive.
 import { searchDomain, getRevisions } from "./xtrace.js";
 import { redact } from "./redact.js";
+import { loadCapture, LIVE, PRERUN } from "./frozen.js";
 
 async function pull(query, re) {
-  const r = await searchDomain(query, 8);
-  for (const row of r?.data ?? []) {
-    const m = (row.text || "").match(re);
-    if (m) return { m, id: row.id, text: row.text, conv_id: row.conv_id, score: row.score };
-  }
+  // A failed pull yields no node rather than throwing. Without this, an unreachable API
+  // rejects out of Promise.all and the frozen fallback below is never reached.
+  try {
+    const r = await searchDomain(query, 8);
+    for (const row of r?.data ?? []) {
+      const m = (row.text || "").match(re);
+      if (m) return { m, id: row.id, text: row.text, conv_id: row.conv_id, score: row.score };
+    }
+  } catch { /* fall through to omitted */ }
   return null;
 }
 
-export async function getChain() {
+// { frozen: false } returns the raw result so a capture can be taken and the empty path tested.
+export async function getChain({ frozen = true } = {}) {
   const [certified, restatedRatio, restatedEbitda, driver, waiver] = await Promise.all([
     pull("Thornwick 31 March 2026 certified Total Net Leverage compliance certificate",
       /certified Total Net Leverage of ([\d.]+)x against a ([\d.]+)x limit/),
@@ -70,8 +76,16 @@ export async function getChain() {
     platform = { checked: 0, maxNodes: 0, error: redact(e.message) };
   }
 
+  // Memory unreachable: render a captured earlier run rather than an empty timeline, and
+  // label it PRERUN so it is never mistaken for a live read.
+  if (!nodes.length && frozen) {
+    const cap = loadCapture("chain");
+    if (cap) return { ...cap.data, label: PRERUN, capturedAt: cap.capturedAt };
+  }
+
   return {
-    label: nodes.length ? "LIVE LINEAGE" : "NO MEMORY",
+    label: nodes.length ? LIVE : "NO MEMORY",
+    source: "memory",
     deal: "Thornwick Logistics Holdings Limited",
     nodes,
     platform,

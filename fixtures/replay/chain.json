@@ -1,0 +1,97 @@
+{
+  "capturedAt": "2026-07-26T06:27:09.507Z",
+  "data": {
+    "label": "LIVE",
+    "source": "memory",
+    "deal": "Thornwick Logistics Holdings Limited",
+    "nodes": [
+      {
+        "state": "superseded",
+        "when": "13 May 2026",
+        "headline": "Total Net Leverage 6.47× — COMPLIANT",
+        "detail": "Certified by the borrower against a 6.50× limit.",
+        "source": {
+          "m": [
+            "certified Total Net Leverage of 6.47x against a 6.50x limit",
+            "6.47",
+            "6.50"
+          ],
+          "id": "eb8c1db5-8ffe-4ba7-a5e3-e19aa515abb1",
+          "text": "Thornwick Logistics Holdings Limited's 31 March 2026 compliance certificate had certified Total Net Leverage of 6.47x against a 6.50x limit.",
+          "conv_id": "thornwick-04-restatement",
+          "score": 1
+        }
+      },
+      {
+        "state": "event",
+        "when": "3 July 2026",
+        "headline": "FY2025 audit removes £5.0m of EBITDA",
+        "detail": "The audited accounts restate figures already certified to the lender.",
+        "source": {
+          "m": [
+            "removed £5.0m of EBITDA",
+            "5.0"
+          ],
+          "id": "5b8428d6-a665-4040-9cca-50f67d5f48c2",
+          "text": "Thornwick Logistics Holdings Limited's 31 March 2026 restatement removed £5.0m of EBITDA, mainly from a £3.0m disallowed synergy add-back and £1.7m of revenue recognised too early.",
+          "conv_id": "thornwick-04-restatement",
+          "score": 1
+        }
+      },
+      {
+        "state": "active",
+        "when": "3 July 2026",
+        "headline": "LTM Adjusted EBITDA restated to £29.0m",
+        "detail": "The input the compliance verdict depended on.",
+        "source": {
+          "m": [
+            "restated Adjusted EBITDA for the LTM to 31 March 2026 was £29.0m",
+            "29.0"
+          ],
+          "id": "a3895369-69cb-4fee-b2e3-5729668ac613",
+          "text": "Thornwick Logistics Holdings Limited's restated Adjusted EBITDA for the LTM to 31 March 2026 was £29.0m.",
+          "conv_id": "thornwick-04-restatement",
+          "score": 1
+        }
+      },
+      {
+        "state": "active",
+        "when": "3 July 2026",
+        "headline": "Total Net Leverage 7.59× — BREACH",
+        "detail": "Re-derived from the restated input. The certified verdict is now false.",
+        "source": {
+          "m": [
+            "restated Total Net Leverage at 31 March 2026 was 7.59x",
+            "7.59"
+          ],
+          "id": "98eca2c4-4e1a-48fb-b8f8-735feb3c1edc",
+          "text": "Thornwick Logistics Holdings Limited's restated Total Net Leverage at 31 March 2026 was 7.59x against a required maximum of 6.50x.",
+          "conv_id": "thornwick-04-restatement",
+          "score": 1
+        }
+      },
+      {
+        "state": "active",
+        "when": "28 August 2026",
+        "headline": "Breach waived, covenant levels reset",
+        "detail": "Amendment & Waiver No. 1 — the breach is resolved, not erased.",
+        "source": {
+          "m": [
+            "were subsequently waived and the covenant levels were reset under Amendment & Waiver No. 1 dated 28 August 2026",
+            "28 August 2026"
+          ],
+          "id": "864e7434-e4f8-4fe2-9022-4612ab1dd1ba",
+          "text": "Thornwick Logistics Holdings Limited's Events of Default under Clause 22.4 at 31 December 2025 and 31 March 2026 were subsequently waived and the covenant levels were reset under Amendment & Waiver No. 1 dated 28 August 2026.",
+          "conv_id": "thornwick-04-restatement",
+          "score": 1
+        }
+      }
+    ],
+    "platform": {
+      "checked": 4,
+      "maxNodes": 1,
+      "error": null
+    },
+    "caveat": "This lineage is reconstructed from the documents in memory, not from the platform's revision chain. Re-ingesting a canonical fact to force supersession was tried on both borrowers and failed: the extractor deduplicates a value it already holds, so no prior node is ever stored for a later one to supersede."
+  }
+}

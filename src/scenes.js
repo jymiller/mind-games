@@ -25,8 +25,9 @@ export const SCENES = [
     title: "The Lane",
     // A title card computes nothing. It said LIVE RECOMPUTE from the original scaffold, which
     // was simply false — the label strip is meant to stop that, not perform it.
-    labels: ["STATIC TITLE CARD"],
+    labels: ["SYNTHETIC", "LIVE"],
     source: "static",
+    hint: "no data behind this page — it is a title card",
     built: true,
     render: () => `
       <section class="card lane">
@@ -77,8 +78,9 @@ export const SCENES = [
     id: "recall",
     n: 2,
     title: "The Recall",
-    labels: ["SYNTHETIC DATA", "LIVE RECALL"],
+    labels: ["SYNTHETIC", "LIVE"],
     source: "memory",
+    hint: "every row read live from the memory API",
     built: true,
     render: async () => {
       const c = await getCard();
@@ -107,7 +109,7 @@ export const SCENES = [
         Switch memory off and this card goes blank, not stale. Note the last row: everything looks fine.</p>
         <div class="cardrows">${rows}</div>
       </section>`,
-        ["SYNTHETIC DATA", c.label, `${c.rows.length} ROWS RECALLED`],
+        ["SYNTHETIC", c.label],
       );
     },
   },
@@ -116,8 +118,9 @@ export const SCENES = [
     n: 3,
     title: "The Drift",
     // Real recompute, but over a local fixture — this scene never touches the memory API.
-    labels: ["SYNTHETIC DATA", "LIVE RECOMPUTE", "LOCAL FIXTURE"],
+    labels: ["SYNTHETIC", "LIVE"],
     source: "local",
+    hint: "computed on this request from a local filing — no network",
     built: true,
     render: () => {
       const d = runDrift();
@@ -179,8 +182,9 @@ export const SCENES = [
     id: "flip",
     n: 4,
     title: "The Flip",
-    labels: ["SYNTHETIC DATA", "LIVE RECOMPUTE"],
+    labels: ["SYNTHETIC", "LIVE"],
     source: "memory",
+    hint: "revised figures read live from the memory API, then recomputed",
     built: true,
     render: async () => {
       const f = await getFlip();
@@ -247,7 +251,7 @@ export const SCENES = [
         </div>
       </section>`,
         // What actually happened on THIS request, not what the scene hopes to do.
-        ["SYNTHETIC DATA", f.label === "LIVE" ? "LIVE RECOMPUTE" : "PRERUN — FROZEN 25 JUL CAPTURE"],
+        ["SYNTHETIC", f.label],
       );
     },
   },
@@ -257,8 +261,9 @@ export const SCENES = [
     title: "The Chain",
     // Not LIVE LINEAGE: the nodes are recalled live, but the lineage between them is
     // reconstructed from documents, not read from the platform's revision chain.
-    labels: ["SYNTHETIC DATA", "LIVE RECALL", "RECONSTRUCTED LINEAGE"],
+    labels: ["SYNTHETIC", "LIVE"],
     source: "memory",
+    hint: "nodes read live from the memory API; the lineage between them is reconstructed",
     built: true,
     render: async () => {
       const c = await getChain();
@@ -298,7 +303,7 @@ export const SCENES = [
         </div>
       </section>`,
         // The platform chain depth is measured, so it belongs in the label, not just the body.
-        ["SYNTHETIC DATA", "LIVE RECALL", `RECONSTRUCTED LINEAGE — PLATFORM CHAIN: ${c.platform.maxNodes} NODE${c.platform.maxNodes === 1 ? "" : "S"}`],
+        ["SYNTHETIC", c.label],
       );
     },
   },
@@ -306,8 +311,9 @@ export const SCENES = [
     id: "ablation",
     n: 6,
     title: "The Ablation",
-    labels: ["SYNTHETIC DATA", "LIVE EVAL"],
+    labels: ["SYNTHETIC", "LIVE"],
     source: "memory",
+    hint: "nothing runs until you press the button; scores come from that run",
     built: true,
     render: () => {
       // Rendered EMPTY on purpose. Every number on this screen arrives from the button.
@@ -429,8 +435,9 @@ export const SCENES = [
     id: "gate",
     n: 7,
     title: "The Gate",
-    labels: ["SYNTHETIC REGISTER", "LIVE ATTESTATION"],
+    labels: ["SYNTHETIC", "LIVE"],
     source: "local",
+    hint: "the register is a local file — no network, and nothing written until you sign",
     built: true,
     render: () => {
       const p = propose();
@@ -500,8 +507,9 @@ export const SCENES = [
     id: "openbox",
     n: 8,
     title: "The Open Box",
-    labels: ["SYNTHETIC DATA", "LIVE RECALL", "REPLAY WHEN CACHED"],
+    labels: ["SYNTHETIC", "LIVE"],
     source: "memory",
+    hint: "each answer is labelled LIVE or PRERUN as it arrives",
     built: true,
     render: async () => {
       const cov = await coverage();

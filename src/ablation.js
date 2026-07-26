@@ -3,6 +3,7 @@
 // The only difference between arms is the memory. Scores are counted from the run.
 import { loadEnv, searchDomain } from "./xtrace.js";
 import { redact } from "./redact.js";
+import { loadCapture, LIVE, PRERUN } from "./frozen.js";
 
 const env = loadEnv();
 const MODEL = env.NOVITA_MODEL;
@@ -55,7 +56,8 @@ async function ask(question, context) {
   return { answer: (j.choices?.[0]?.message?.content || "").trim(), finish: j.choices?.[0]?.finish_reason };
 }
 
-export async function runAblation() {
+// { frozen: false } skips the fallback so a real run can be captured and failures stay visible.
+export async function runAblation({ frozen = true } = {}) {
   if (!env.NOVITA_API_KEY || !MODEL) throw new Error("NOVITA_API_KEY / NOVITA_MODEL missing");
   const contexts = await Promise.all(QUESTIONS.map(async (q) => {
     const r = await searchDomain(q.q, 8);
@@ -80,7 +82,18 @@ export async function runAblation() {
   const errs = (arm) => arm.filter((r) => r.error).length;
   const rateLimited = [...on, ...off].some((r) => /429|rate.?limit/i.test(r.answer || ""));
 
-  return { label: "LIVE EVAL", model: MODEL, n: QUESTIONS.length, temperature: 0, rateLimited,
-           on: { score: scoreArm(on), results: on, errors: errs(on), complete: errs(on) === 0 },
-           off: { score: scoreArm(off), results: off, errors: errs(off), complete: errs(off) === 0 } };
+  const live = { label: LIVE, model: MODEL, n: QUESTIONS.length, temperature: 0, rateLimited,
+    on: { score: scoreArm(on), results: on, errors: errs(on), complete: errs(on) === 0 },
+    off: { score: scoreArm(off), results: off, errors: errs(off), complete: errs(off) === 0 } };
+
+  // If either arm failed to complete — rate limit, outage, dead key — the scores mean nothing.
+  // Prefer a captured real run, clearly labelled PRERUN, over showing a score that isn't one.
+  if (frozen && (!live.on.complete || !live.off.complete)) {
+    const cap = loadCapture("ablation");
+    if (cap) {
+      return { ...cap.data, label: PRERUN, capturedAt: cap.capturedAt,
+               liveAttempt: { rateLimited, onErrors: errs(on), offErrors: errs(off) } };
+    }
+  }
+  return live;
 }

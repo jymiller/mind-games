@@ -1,0 +1,202 @@
+{
+  "capturedAt": "2026-07-26T06:27:14.615Z",
+  "data": {
+    "label": "LIVE",
+    "model": "deepseek/deepseek-v4-flash",
+    "n": 5,
+    "temperature": 0,
+    "rateLimited": false,
+    "on": {
+      "score": 4,
+      "results": [
+        {
+          "id": "q1",
+          "q": "What Total Net Leverage did Thornwick's 31 March 2026 compliance certificate certify, and against what covenant limit?",
+          "answer": "The compliance certificate certified Total Net Leverage of 6.47x against a covenant limit of 6.50x.",
+          "finish": "stop",
+          "pass": true,
+          "hits": [
+            {
+              "label": "6.47x certified",
+              "hit": true
+            },
+            {
+              "label": "6.50x limit",
+              "hit": true
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "q": "Given the FY2025 audit restatement, is Thornwick's Q1 2026 leverage covenant position still compliant? State the restated ratio.",
+          "answer": "No, Thornwick's Q1 2026 leverage covenant is no longer compliant after the restatement. The restated Total Net Leverage as of 31 March 2026 was 7.59x, exceeding the required maximum of 6.50x.",
+          "finish": "stop",
+          "pass": true,
+          "hits": [
+            {
+              "label": "7.59x restated",
+              "hit": true
+            },
+            {
+              "label": "identifies a breach",
+              "hit": true
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "q": "What caused Thornwick's Q1 2026 covenant breach — a change in debt, or a change in EBITDA?",
+          "answer": "The covenant breach was caused by a restatement that reduced Adjusted EBITDA by £5.0m, mainly from a disallowed synergy add-back and early revenue recognition. There is no mention of a change in debt.",
+          "finish": "stop",
+          "pass": false,
+          "hits": [
+            {
+              "label": "EBITDA, not debt",
+              "hit": true
+            },
+            {
+              "label": "disallowed synergy add-back",
+              "hit": true
+            },
+            {
+              "label": "not driven by debt",
+              "hit": false
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "q": "What happened to Thornwick's Q1 2026 covenant breach, and under which instrument?",
+          "answer": "The Q1 2026 covenant breach was waived and the covenant levels were reset under Amendment & Waiver No. 1 dated 28 August 2026. The waiver applied to the Events of Default under Clause 22.4 of the Thornwick Senior Facilities Agreement.",
+          "finish": "stop",
+          "pass": true,
+          "hits": [
+            {
+              "label": "it was waived",
+              "hit": true
+            },
+            {
+              "label": "names Amendment & Waiver No. 1",
+              "hit": true
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "q": "Who audited Thornwick's FY2025 financial statements, and was that a change of auditor?",
+          "answer": "Marbury Tolland LLP audited Thornwick's FY2025 financial statements. That was a change from the prior year's auditor, Larkfield Downe LLP.",
+          "finish": "stop",
+          "pass": true,
+          "hits": [
+            {
+              "label": "Marbury Tolland LLP",
+              "hit": true
+            },
+            {
+              "label": "flags the change",
+              "hit": true
+            }
+          ]
+        }
+      ],
+      "errors": 0,
+      "complete": true
+    },
+    "off": {
+      "score": 0,
+      "results": [
+        {
+          "id": "q1",
+          "q": "What Total Net Leverage did Thornwick's 31 March 2026 compliance certificate certify, and against what covenant limit?",
+          "answer": "I do not have the specific figures from Thornwick's 31 March 2026 compliance certificate. Without access to that document, I cannot state the certified Total Net Leverage or the corresponding covenant limit. Please provide the relevant financial details.",
+          "finish": "stop",
+          "pass": false,
+          "hits": [
+            {
+              "label": "6.47x certified",
+              "hit": false
+            },
+            {
+              "label": "6.50x limit",
+              "hit": false
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "q": "Given the FY2025 audit restatement, is Thornwick's Q1 2026 leverage covenant position still compliant? State the restated ratio.",
+          "answer": "I do not know the specific restated leverage ratio or covenant details for Thornwick's Q1 2026 position. Without that data, I cannot confirm compliance or provide the restated figure.",
+          "finish": "stop",
+          "pass": false,
+          "hits": [
+            {
+              "label": "7.59x restated",
+              "hit": false
+            },
+            {
+              "label": "identifies a breach",
+              "hit": false
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "q": "What caused Thornwick's Q1 2026 covenant breach — a change in debt, or a change in EBITDA?",
+          "answer": "I do not know the specific cause of Thornwick's Q1 2026 covenant breach.",
+          "finish": "stop",
+          "pass": false,
+          "hits": [
+            {
+              "label": "EBITDA, not debt",
+              "hit": false
+            },
+            {
+              "label": "disallowed synergy add-back",
+              "hit": false
+            },
+            {
+              "label": "not driven by debt",
+              "hit": false
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "q": "What happened to Thornwick's Q1 2026 covenant breach, and under which instrument?",
+          "answer": "I do not have any information about Thornwick's Q1 2026 covenant breach or the specific instrument involved. This appears to be from a private-credit context I am not familiar with.",
+          "finish": "stop",
+          "pass": false,
+          "hits": [
+            {
+              "label": "it was waived",
+              "hit": false
+            },
+            {
+              "label": "names Amendment & Waiver No. 1",
+              "hit": false
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "q": "Who audited Thornwick's FY2025 financial statements, and was that a change of auditor?",
+          "answer": "I do not know who audited Thornwick's FY2025 financial statements or whether it was a change of auditor, as no information has been provided.",
+          "finish": "stop",
+          "pass": false,
+          "hits": [
+            {
+              "label": "Marbury Tolland LLP",
+              "hit": false
+            },
+            {
+              "label": "flags the change",
+              "hit": true
+            }
+          ]
+        }
+      ],
+      "errors": 0,
+      "complete": true
+    }
+  }
+}

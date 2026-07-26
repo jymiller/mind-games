@@ -4,8 +4,8 @@
 // reason this scene is worth showing at all:
 //
 //   LIVE            recalled from memory, answered by the model, sources listed
-//   REPLAY          the model was unreachable; a frozen answer captured earlier is shown,
-//                   labelled REPLAY so nobody mistakes cached for live
+//   PRERUN          the model was unreachable; a frozen answer captured earlier is shown,
+//                   labelled PRERUN so nobody mistakes cached for live
 //   NOT IN MEMORY   the question is outside what was ingested. It says so and states what
 //                   it does cover, rather than inventing something plausible.
 //
@@ -119,7 +119,7 @@ export async function ask(question, { allowLive = true } = {}) {
   const bank = replayBank();
   const frozen = bank.answers?.[norm(q)];
   if (frozen) {
-    return { state: "replay", label: "REPLAY", question: q, answer: frozen.answer,
+    return { state: "replay", label: "PRERUN", question: q, answer: frozen.answer,
              sources: frozen.sources ?? sources, captured: bank.captured };
   }
 
