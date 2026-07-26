@@ -279,7 +279,7 @@ export const SCENES = [
           </div>`,
         )
         .join("");
-      return `
+      return withLabels(`
       <section class="card">
         <div class="eyebrow">Scene 5 &middot; The Chain &mdash; ${esc(c.deal)}</div>
         <h1 class="flip-h">The old number doesn't disappear. It gets crossed out.</h1>
@@ -296,7 +296,10 @@ export const SCENES = [
           was tried on both borrowers and failed &mdash; the extractor drops any fact whose value it
           already holds, so no earlier version is ever stored to supersede.
         </div>
-      </section>`;
+      </section>`,
+        // The platform chain depth is measured, so it belongs in the label, not just the body.
+        ["SYNTHETIC DATA", "LIVE RECALL", `RECONSTRUCTED LINEAGE — PLATFORM CHAIN: ${c.platform.maxNodes} NODE${c.platform.maxNodes === 1 ? "" : "S"}`],
+      );
     },
   },
   {
