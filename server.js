@@ -44,6 +44,13 @@ font-size:12.5px;text-decoration:none;white-space:nowrap}
 .chip.todo b{color:var(--dim)}
 .livedot{width:7px;height:7px;border-radius:50%;background:var(--green);flex:0 0 auto;
 box-shadow:0 0 7px -1px var(--green)}
+.livedot.local{background:var(--accent);box-shadow:0 0 7px -1px var(--accent)}
+.livedot.static{background:#4a5361;box-shadow:none}
+.chip.ready.local{border-color:#243a55;background:#0e141b}
+.chip.ready.local b{color:var(--accent)}
+.chip.ready.static{border-color:var(--line);background:var(--panel)}
+.chip.ready.static b{color:var(--dim)}
+.striplegend .livedot{margin-left:10px}
 .striplegend{display:inline-flex;align-items:center;gap:7px;color:var(--dim);font-size:11.5px;
 padding:7px 4px;white-space:nowrap}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:34px}
@@ -61,6 +68,14 @@ text-transform:uppercase;margin-bottom:7px}
 border-radius:6px;border:1px solid var(--line);color:var(--dim);background:#0f1318}
 .label.live{color:var(--green);border-color:#1e4634}
 .label.planned{color:#66717f;border-style:dashed;text-transform:none;letter-spacing:.04em}
+.label.dead{color:var(--red);border-color:#4a2229}
+.statusbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 20px;padding:11px 14px;
+background:#0f1318;border:1px solid var(--line);border-radius:10px}
+.statusbar .label{background:transparent}
+.statusbar .label.live{background:#0f1a14}
+.statusbar .label.replay{background:#1a1408}
+.statushint{color:#66717f;font-size:11.5px;margin-left:auto}
+@media (max-width:640px){.statushint{display:none}}
 .label.replay{color:var(--amber);border-color:#4a3a1e}
 .todo-note{color:var(--dim);margin-top:12px;font-size:14.5px}
 footer{color:var(--dim);font-size:12.5px;margin-top:34px;
@@ -212,23 +227,30 @@ border:1px solid var(--line);color:var(--dim)}
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 function labelClass(l) {
+  if (/NO MEMORY|UNAVAILABLE/.test(l)) return "label dead";
   if (/LIVE/.test(l)) return "label live";
-  if (/REPLAY|PRERUN/.test(l)) return "label replay";
+  if (/REPLAY|PRERUN|FROZEN/.test(l)) return "label replay";
   return "label";
 }
 
 // The strip has to be readable at a glance from a laptop on a table: a live scene must be
 // obviously clickable, a storyboard-only one obviously not. Nobody should burn a judge's
 // attention opening a page that has no implementation behind it.
+// A dot per scene, and the dot means something specific. Green = this page queries the
+// memory API on load. Blue = built and running, but over local state only. Grey = static.
+// One green dot for everything would have been a nicer picture and a worse claim.
 function strip(activeId) {
-  const built = SCENES.filter((s) => s.built).length;
-  const chips = SCENES.map(
-    (s) =>
-      `<a class="chip ${s.id === activeId ? "on" : ""} ${s.built ? "ready" : "todo"}" href="/scene/${s.id}">` +
-      `${s.built ? '<span class="livedot"></span>' : ""}<b>${s.n}</b> ${esc(s.title)}` +
-      `${s.built ? "" : " &middot; storyboard"}</a>`,
-  ).join("");
-  return `${chips}<span class="striplegend"><span class="livedot"></span> ${built} live &middot; ${SCENES.length - built} storyboard only</span>`;
+  const mem = SCENES.filter((s) => s.built && s.source === "memory").length;
+  const local = SCENES.filter((s) => s.built && s.source === "local").length;
+  const chips = SCENES.map((s) => {
+    const dot = s.built ? `<span class="livedot ${esc(s.source || "static")}"></span>` : "";
+    return `<a class="chip ${s.id === activeId ? "on" : ""} ${s.built ? "ready" : "todo"} ${esc(s.source || "")}" href="/scene/${s.id}">` +
+      `${dot}<b>${s.n}</b> ${esc(s.title)}${s.built ? "" : " &middot; storyboard"}</a>`;
+  }).join("");
+  return `${chips}<span class="striplegend">
+    <span class="livedot memory"></span> ${mem} live from memory
+    <span class="livedot local"></span> ${local} local
+    <span class="livedot static"></span> 1 static</span>`;
 }
 
 // Storyboard rows. Design intent only — never a source of figures for a live screen.
@@ -284,8 +306,16 @@ function directorNote(scene) {
 
 async function page(scene) {
   let body;
+  let labels = scene.labels;
   try {
-    body = scene.built ? await scene.render() : placeholder(scene);
+    if (scene.built) {
+      const out = await scene.render();
+      // A scene can hand back runtime labels; they beat the declared ones.
+      body = typeof out === "string" ? out : out.html;
+      if (typeof out === "object" && Array.isArray(out.labels)) labels = out.labels;
+    } else {
+      body = placeholder(scene);
+    }
   } catch (e) {
     // An honest failure beats a stale mock: say what broke, on screen.
     body = `<section class="card"><div class="eyebrow">Scene ${scene.n} &middot; ${esc(scene.title)}</div>
@@ -313,6 +343,8 @@ async function page(scene) {
     <div class="muted">institutional memory for private credit &middot; Mind Games, Stanford, 25 Jul 2026</div>
   </div>
   <nav class="strip">${strip(scene.id)}</nav>
+  ${scene.built ? `<div class="statusbar">${labels.map((l) => `<span class="${labelClass(l)}">${esc(l)}</span>`).join("")}
+    <span class="statushint">what this page is actually doing, right now</span></div>` : ""}
   ${body}
   ${scene.built ? directorNote(scene) : ""}
   <div class="labels">${

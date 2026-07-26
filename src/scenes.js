@@ -13,12 +13,20 @@ import { getChain } from "./chain.js";
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const x2 = (n) => Number(n).toFixed(2);
 
+// A scene may return { html, labels } instead of a bare string when its honesty labels are
+// only knowable at render time — LIVE vs PRERUN depends on whether the API answered THIS
+// request. Declared labels are a promise; these are what actually happened.
+const withLabels = (html, labels) => ({ html, labels });
+
 export const SCENES = [
   {
     id: "lane",
     n: 1,
     title: "The Lane",
-    labels: ["SYNTHETIC DATA", "LIVE RECOMPUTE"],
+    // A title card computes nothing. It said LIVE RECOMPUTE from the original scaffold, which
+    // was simply false — the label strip is meant to stop that, not perform it.
+    labels: ["STATIC TITLE CARD"],
+    source: "static",
     built: true,
     render: () => `
       <section class="card lane">
@@ -74,6 +82,7 @@ export const SCENES = [
     n: 2,
     title: "The Recall",
     labels: ["SYNTHETIC DATA", "LIVE RECALL"],
+    source: "memory",
     built: true,
     render: async () => {
       const c = await getCard();
@@ -94,7 +103,7 @@ export const SCENES = [
           </div>`,
         )
         .join("");
-      return `
+      return withLabels(`
       <section class="card">
         <div class="eyebrow">Scene 2 &middot; The Recall &mdash; ${esc(c.deal)}</div>
         <h1 class="flip-h">What the file knows, three officers later.</h1>
@@ -105,14 +114,18 @@ export const SCENES = [
         who signed it off, and where each line came from. Note the last row says everything is fine.
         That is the claim Scene 4 breaks.</p>
         <div class="cardrows">${rows}</div>
-      </section>`;
+      </section>`,
+        ["SYNTHETIC DATA", c.label, `${c.rows.length} ROWS RECALLED`],
+      );
     },
   },
   {
     id: "drift",
     n: 3,
     title: "The Drift",
-    labels: ["SYNTHETIC DATA", "LIVE RECOMPUTE"],
+    // Real recompute, but over a local fixture — this scene never touches the memory API.
+    labels: ["SYNTHETIC DATA", "LIVE RECOMPUTE", "LOCAL FIXTURE"],
+    source: "local",
     built: true,
     render: () => {
       const d = runDrift();
@@ -179,6 +192,7 @@ export const SCENES = [
     n: 4,
     title: "The Flip",
     labels: ["SYNTHETIC DATA", "LIVE RECOMPUTE"],
+    source: "memory",
     built: true,
     render: async () => {
       const f = await getFlip();
@@ -189,7 +203,7 @@ export const SCENES = [
       const drivers = f.drivers
         .map((d) => `<tr><td>${esc(d.label)}</td><td class="numcell">&minus;&pound;${d.amount.toFixed(1)}m</td></tr>`)
         .join("");
-      return `
+      return withLabels(`
       <section class="card">
         <div class="eyebrow">Scene 4 &middot; The Flip &mdash; ${esc(f.deal)} &middot; ${esc(f.restated.period)}</div>
         <h1 class="flip-h">Same quarter. Same covenant. Opposite verdict.</h1>
@@ -248,14 +262,20 @@ export const SCENES = [
           <div class="minihead">Provenance &mdash; every revised figure above, as recalled from memory</div>
           <ul class="provlist">${prov}</ul>
         </div>
-      </section>`;
+      </section>`,
+        // What actually happened on THIS request, not what the scene hopes to do.
+        ["SYNTHETIC DATA", f.label === "LIVE" ? "LIVE RECOMPUTE" : "PRERUN — FROZEN 25 JUL CAPTURE"],
+      );
     },
   },
   {
     id: "chain",
     n: 5,
     title: "The Chain",
-    labels: ["SYNTHETIC DATA", "LIVE LINEAGE"],
+    // Not LIVE LINEAGE: the nodes are recalled live, but the lineage between them is
+    // reconstructed from documents, not read from the platform's revision chain.
+    labels: ["SYNTHETIC DATA", "LIVE RECALL", "RECONSTRUCTED LINEAGE"],
+    source: "memory",
     built: true,
     render: async () => {
       const c = await getChain();
@@ -304,6 +324,7 @@ export const SCENES = [
     n: 6,
     title: "The Ablation",
     labels: ["SYNTHETIC DATA", "LIVE EVAL"],
+    source: "memory",
     built: true,
     render: () => {
       // Rendered EMPTY on purpose. Every number on this screen arrives from the button.
@@ -432,6 +453,7 @@ export const SCENES = [
     n: 7,
     title: "The Gate",
     labels: ["SYNTHETIC REGISTER", "LIVE ATTESTATION"],
+    source: "local",
     built: true,
     render: () => {
       const p = propose();
@@ -503,6 +525,7 @@ export const SCENES = [
     n: 8,
     title: "The Open Box",
     labels: ["SYNTHETIC DATA", "LIVE RECALL", "REPLAY WHEN CACHED"],
+    source: "memory",
     built: true,
     render: async () => {
       const cov = await coverage();
