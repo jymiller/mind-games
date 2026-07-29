@@ -1,0 +1,8 @@
+{
+  "agent_brain_id": "581ff76b-abb4-4b66-ac1b-a910916968c0",
+  "brain_name": "Mind Games — Deal Memory build",
+  "namespace": "mind-games",
+  "confidential": false,
+  "unattended": "allow",
+  "egress_markers": []
+}

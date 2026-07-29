@@ -18,3 +18,8 @@ INFRASTRUCTURE.md
 
 # runtime attestation register (synthetic, regenerated at will)
 data/
+
+# agent config — settings.json is shared, everything else is local
+.claude/*
+!.claude/settings.json
+!.claude/memhub-brains.json
